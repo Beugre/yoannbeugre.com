@@ -355,7 +355,7 @@ export default function BTCPredictionChallenge() {
                   <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",fontFamily:"monospace",marginTop:2}}>Touche ↓ ou D</div>
                 </div>
               </div>
-              <button type="button" onClick={startGame} disabled={loading}
+              <button type="button" onClick={() => startGame()} disabled={loading}
                 style={{cursor:"pointer",width:"100%",padding:"15px",borderRadius:10,fontWeight:900,fontSize:16,color:"#000",background:loading?"#888":"linear-gradient(135deg,#f0b90b,#f97316)",border:"none"}}>
                 {loading?"⏳ Connexion Binance...":"▶ Lancer le challenge"}
               </button>
@@ -542,7 +542,7 @@ export default function BTCPredictionChallenge() {
                   Algo: RSI(14) + Momentum(5) + Volume · Données Binance réelles
                 </div>
                 <div style={{display:"flex",gap:10}}>
-                  <button type="button" onClick={startGame} style={{cursor:"pointer",flex:1,padding:"12px",borderRadius:10,border:"1px solid rgba(255,255,255,0.14)",background:"transparent",color:"rgba(255,255,255,0.65)",fontWeight:700,fontSize:14}}>🔄 Rejouer</button>
+                  <button type="button" onClick={() => startGame()} style={{cursor:"pointer",flex:1,padding:"12px",borderRadius:10,border:"1px solid rgba(255,255,255,0.14)",background:"transparent",color:"rgba(255,255,255,0.65)",fontWeight:700,fontSize:14}}>🔄 Rejouer</button>
                   <button type="button" onClick={()=>document.querySelector("#contact")?.scrollIntoView({behavior:"smooth"})} style={{cursor:"pointer",flex:1,padding:"12px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#f0b90b,#f97316)",color:"#000",fontWeight:900,fontSize:14}}>📩 Contacter Yoann</button>
                 </div>
               </div>
