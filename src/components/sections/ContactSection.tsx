@@ -97,15 +97,15 @@ export default function ContactSection() {
                                 {
                                     icon: GitBranch,
                                     label: "GitHub",
-                                    value: "github.com/yoannbeugre",
-                                    href: "https://github.com/yoannbeugre",
+                                    value: "github.com/Beugre",
+                                    href: "https://github.com/Beugre",
                                     color: "text-white/60",
                                 },
                                 {
                                     icon: ExternalLink,
                                     label: "LinkedIn",
-                                    value: "linkedin.com/in/yoannbeugre",
-                                    href: "https://linkedin.com/in/yoannbeugre",
+                                    value: "linkedin.com/in/yoann-beugré-236b20153",
+                                    href: "https://linkedin.com/in/yoann-beugré-236b20153",
                                     color: "text-blue-400",
                                 },
                                 {

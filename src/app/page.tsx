@@ -9,10 +9,18 @@ import TechStackSection from "@/components/sections/TechStackSection";
 import GitHubSection from "@/components/sections/GitHubSection";
 import ContactSection from "@/components/sections/ContactSection";
 import Footer from "@/components/Footer";
+import CustomCursor from "@/components/CustomCursor";
+import SmoothScroll from "@/components/SmoothScroll";
+import EasterEggTerminal from "@/components/EasterEggTerminal";
 
 export default function Home() {
   return (
     <main className="relative min-h-screen bg-[#030712] overflow-x-hidden">
+      {/* Global enhancements */}
+      <CustomCursor />
+      <SmoothScroll />
+      <EasterEggTerminal />
+
       <Navigation />
       <HeroSection />
       <AboutSection />
@@ -24,6 +32,7 @@ export default function Home() {
       <GitHubSection />
       <ContactSection />
       <Footer />
+
       <div
         className="pointer-events-none fixed inset-0 z-0"
         style={{

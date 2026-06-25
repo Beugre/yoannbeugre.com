@@ -51,8 +51,8 @@ export default function GitHubSection() {
         const fetchData = async () => {
             try {
                 const [userRes, reposRes] = await Promise.all([
-                    fetch("https://api.github.com/users/yoannbeugre"),
-                    fetch("https://api.github.com/users/yoannbeugre/repos?sort=updated&per_page=6"),
+                    fetch("https://api.github.com/users/Beugre"),
+                    fetch("https://api.github.com/users/Beugre/repos?sort=updated&per_page=6"),
                 ]);
 
                 if (userRes.ok) {
@@ -155,7 +155,7 @@ export default function GitHubSection() {
                             <p className="text-white/40 text-sm mt-3 leading-relaxed">{stats.bio}</p>
                         )}
                         <a
-                            href="https://github.com/yoannbeugre"
+                            href="https://github.com/Beugre"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-5 flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/15 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all text-sm font-medium"

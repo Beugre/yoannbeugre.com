@@ -1,14 +1,50 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ParticleCanvas from "../ParticleCanvas";
 
-const roles = ["Software Engineer", "AI Engineer", "Quant Developer", "Algorithm Designer"];
+const roles = ["Software Engineer", "AI Engineer", "Quant Developer", "Algorithm Designer", "Math Enthusiast"];
+
+function TypedRole() {
+    const [displayed, setDisplayed] = useState("");
+    const [roleIdx, setRoleIdx] = useState(0);
+    const [deleting, setDeleting] = useState(false);
+    const [paused, setPaused] = useState(false);
+
+    useEffect(() => {
+        if (paused) {
+            const t = setTimeout(() => { setPaused(false); setDeleting(true); }, 1800);
+            return () => clearTimeout(t);
+        }
+        const current = roles[roleIdx];
+        if (!deleting) {
+            if (displayed.length < current.length) {
+                const t = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 60);
+                return () => clearTimeout(t);
+            } else {
+                setPaused(true);
+            }
+        } else {
+            if (displayed.length > 0) {
+                const t = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 35);
+                return () => clearTimeout(t);
+            } else {
+                setDeleting(false);
+                setRoleIdx((i) => (i + 1) % roles.length);
+            }
+        }
+    }, [displayed, deleting, roleIdx, paused]);
+
+    return (
+        <span className="text-cyan-400 font-mono">
+            {displayed}
+            <span className="animate-pulse">|</span>
+        </span>
+    );
+}
 
 export default function HeroSection() {
-    const nameRef = useRef<HTMLHeadingElement>(null);
-
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
             {/* Background gradient layers */}
@@ -62,7 +98,6 @@ export default function HeroSection() {
                 {/* Main name */}
                 <div className="overflow-hidden mb-4">
                     <motion.h1
-                        ref={nameRef}
                         className="text-6xl md:text-8xl lg:text-[10rem] font-black tracking-tighter leading-none"
                         initial={{ opacity: 0, y: 100 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -82,25 +117,18 @@ export default function HeroSection() {
                     </motion.h1>
                 </div>
 
-                {/* Roles */}
+                {/* Typed role */}
                 <motion.div
-                    className="flex flex-wrap items-center justify-center gap-3 mb-10"
+                    className="flex items-center justify-center gap-3 mb-10 h-10"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.6, delay: 0.5 }}
                 >
-                    {roles.map((role, i) => (
-                        <motion.span
-                            key={role}
-                            className="px-4 py-2 rounded-lg text-sm font-mono font-medium border border-white/10 bg-white/5 text-white/70 backdrop-blur-sm"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.4, delay: 0.5 + i * 0.08 }}
-                            whileHover={{ scale: 1.05, borderColor: "rgba(0,212,255,0.4)", color: "#00d4ff" }}
-                        >
-                            {role}
-                        </motion.span>
-                    ))}
+                    <span className="text-white/40 font-mono text-lg">{"<"}</span>
+                    <span className="text-lg font-mono font-semibold min-w-[280px] text-left">
+                        <TypedRole />
+                    </span>
+                    <span className="text-white/40 font-mono text-lg">{"/>"}</span>
                 </motion.div>
 
                 {/* Subtitle */}

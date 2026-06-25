@@ -22,7 +22,7 @@ export default function Footer() {
                     {/* Links */}
                     <div className="flex items-center gap-4">
                         <a
-                            href="https://github.com/yoannbeugre"
+                            href="https://github.com/Beugre"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-9 h-9 rounded-lg glass border border-white/10 flex items-center justify-center text-white/40 hover:text-white/90 hover:border-white/25 transition-all duration-200"
@@ -31,7 +31,7 @@ export default function Footer() {
                             <GitBranch size={16} />
                         </a>
                         <a
-                            href="https://linkedin.com/in/yoannbeugre"
+                            href="https://linkedin.com/in/yoann-beugré-236b20153"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-9 h-9 rounded-lg glass border border-white/10 flex items-center justify-center text-white/40 hover:text-blue-400 hover:border-blue-400/30 transition-all duration-200"
