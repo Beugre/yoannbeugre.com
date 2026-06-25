@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Terminal } from "lucide-react";
+import { unlockAchievement } from "@/lib/achievements";
 
 interface Line {
   type: "input" | "output" | "error" | "success" | "system";
@@ -17,6 +18,8 @@ const RESPONSES: Record<string, string[]> = {
     "  projects     — Current projects",
     "  contact      — Get in touch",
     "  education    — Academic background",
+    "  trade        — Launch trading game",
+    "  matrix       — ...",
     "  sudo hire-me — 🚀 Make an offer",
     "  clear        — Clear the terminal",
     "  exit         — Close terminal",
@@ -68,6 +71,16 @@ const RESPONSES: Record<string, string[]> = {
     "",
     "💡 Tip: Mention 'terminal' in your message for extra points.",
   ],
+  matrix: [
+    "Initiating matrix protocol...",
+    "Wake up, Neo.",
+    "Follow the white rabbit. 🐇",
+  ],
+  trade: [
+    "Launching trading game...",
+    "→ Scroll to the 'Trade Like Me' section",
+    "→ Can you beat my algorithm?",
+  ],
   clear: [],
   exit: ["Closing terminal..."],
 };
@@ -100,7 +113,10 @@ export default function EasterEggTerminal() {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey && e.key === "k") || e.key === "`") {
         e.preventDefault();
-        setOpen((o) => !o);
+        setOpen((o) => {
+          if (!o) unlockAchievement("TERMINAL");
+          return !o;
+        });
       }
       if (e.key === "Escape") setOpen(false);
     };
@@ -149,6 +165,16 @@ export default function EasterEggTerminal() {
     if (response) {
       if (trimmed === "sudo hire-me") {
         typeLines(response, "success");
+      } else if (trimmed === "matrix") {
+        typeLines(response, "output");
+        unlockAchievement("MATRIX");
+        setTimeout(() => window.dispatchEvent(new Event("matrixStart")), 800);
+      } else if (trimmed === "trade") {
+        typeLines(response, "output");
+        setTimeout(() => {
+          setOpen(false);
+          document.querySelector("#trade")?.scrollIntoView({ behavior: "smooth" });
+        }, 1200);
       } else {
         typeLines(response, "output");
       }
@@ -193,7 +219,7 @@ export default function EasterEggTerminal() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ delay: 2 }}
-            onClick={() => setOpen(true)}
+            onClick={() => { setOpen(true); unlockAchievement("TERMINAL"); }}
             title="Open terminal"
           >
             <Terminal size={13} />
