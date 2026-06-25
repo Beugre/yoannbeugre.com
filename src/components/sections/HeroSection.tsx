@@ -207,7 +207,7 @@ export default function HeroSection() {
                             <div style={{ background: "#030712", borderRadius: "50%", width: "100%", height: "100%" }} />
                         </div>
                         <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-cyan-400/20">
-                            <Image src="/yoann.jpg" alt="Yoann" fill className="object-cover" style={{ filter: "contrast(1.1) saturate(0.85)", objectPosition: "center 35%" }} priority />
+                            <Image src="/yoann.jpg" alt="Yoann" fill className="object-cover object-top" style={{ filter: "contrast(1.05) saturate(0.9)" }} priority />
                         </div>
                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#030712]" />
                     </div>

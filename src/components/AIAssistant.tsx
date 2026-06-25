@@ -109,7 +109,7 @@ export default function AIAssistant() {
                                         alt="Yoann"
                                         width={36}
                                         height={36}
-                                        className="rounded-full object-cover border border-violet-400/30" style={{ objectPosition: "center 35%" }}
+                                        className="rounded-full object-cover object-top border border-violet-400/30"
                                     />
                                     <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#030712]" />
                                 </div>
