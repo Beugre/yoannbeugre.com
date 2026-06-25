@@ -108,13 +108,13 @@ function pickIdx(candles: Candle[], used: number[]): number {
 }
 
 // easeInOutCubic — perfectly smooth, matches Polymarket
-function easeInOut(t: number) { return t < 0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+function easeInOut(t: number) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
 function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Candle[]; winIdx: number; replayN: number; showReplay: boolean; animKey: number }) {
   const [clipPct, setClipPct] = useState(0); // 0→1
   const rafRef = useRef<number>(0);
   const startRef = useRef<number>(0);
-  const durationMs = showReplay ? REPLAY_N * 440 : 1600; // longer = more cinematic
+  const durationMs = showReplay ? REPLAY_N * 440 : 6000;
 
   // RAF-driven animation — true 60fps, never choppy
   useEffect(() => {
@@ -131,7 +131,7 @@ function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Can
     };
     rafRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafRef.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animKey, showReplay]);
 
   const hist = candles.slice(Math.max(0, winIdx - SHOW), winIdx + 1);
