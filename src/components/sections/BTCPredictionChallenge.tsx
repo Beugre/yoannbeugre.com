@@ -107,32 +107,15 @@ function pickIdx(candles: Candle[], used: number[]): number {
   return pool.length ? pool[Math.floor(Math.random() * pool.length)] : SHOW + 5;
 }
 
-// easeInOutCubic — perfectly smooth, matches Polymarket
-function easeInOut(t: number) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+// easeInOutCubic
+function easeInOut(t: number) { return t < 0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
 
 function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Candle[]; winIdx: number; replayN: number; showReplay: boolean; animKey: number }) {
-  const [clipPct, setClipPct] = useState(0); // 0→1
+  // Direct DOM ref — zero React re-renders during animation, true 60fps
+  const clipRectRef = useRef<SVGRectElement>(null);
   const rafRef = useRef<number>(0);
-  const startRef = useRef<number>(0);
-  const durationMs = showReplay ? REPLAY_N * 440 : 6000;
-
-  // RAF-driven animation — true 60fps, never choppy
-  useEffect(() => {
-    setClipPct(0);
-    startRef.current = 0;
-    cancelAnimationFrame(rafRef.current);
-
-    const step = (ts: number) => {
-      if (!startRef.current) startRef.current = ts;
-      const elapsed = ts - startRef.current;
-      const t = Math.min(1, elapsed / durationMs);
-      setClipPct(easeInOut(t));
-      if (t < 1) rafRef.current = requestAnimationFrame(step);
-    };
-    rafRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [animKey, showReplay]);
+  const maxWidthRef = useRef(0);
+  const durationMs = showReplay ? REPLAY_N * 450 : 6000;
 
   const hist = candles.slice(Math.max(0, winIdx - SHOW), winIdx + 1);
   const repl = showReplay ? candles.slice(winIdx + 1, winIdx + 1 + Math.min(replayN, REPLAY_N)) : [];
@@ -160,8 +143,26 @@ function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Can
   }
 
   const clipId = `clip-${animKey}`;
+  const maxClipW = IW + 20;
+  maxWidthRef.current = maxClipW;
 
-  const clipWidth = clipPct * (IW + 20); // RAF-driven, smooth 60fps
+  // Pure DOM animation — RAF writes directly to SVG attribute, zero React re-renders
+  useEffect(() => {
+    const rect = clipRectRef.current;
+    if (!rect) return;
+    rect.setAttribute("width", "0");
+    cancelAnimationFrame(rafRef.current);
+    let start = 0;
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const t = Math.min(1, (ts - start) / durationMs);
+      rect.setAttribute("width", String(easeInOut(t) * maxWidthRef.current));
+      if (t < 1) rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animKey, showReplay]);
 
   return (
     <svg viewBox={`0 0 ${W} ${H + VH}`} className="w-full" style={{ height: 180 }} preserveAspectRatio="none">
@@ -171,9 +172,9 @@ function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Can
           <stop offset="0%" stopColor={up ? "rgba(240,185,11,0.2)" : "rgba(239,68,68,0.15)"} />
           <stop offset="100%" stopColor="rgba(0,0,0,0)" />
         </linearGradient>
-        {/* React-state-driven clipPath — 60fps guaranteed */}
+        {/* clipPath rect driven by direct DOM writes — no React state */}
         <clipPath id={clipId}>
-          <rect x={ML} y={0} width={clipWidth} height={H + VH} />
+          <rect ref={clipRectRef} x={ML} y={0} width={0} height={H + VH} />
         </clipPath>
       </defs>
       {ticks.map((v, i) => (
