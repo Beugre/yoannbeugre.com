@@ -11,49 +11,6 @@ interface Message {
     text: string;
 }
 
-const QA = [
-    {
-        patterns: ["trading", "bot", "binance", "crypto", "rsi", "price action"],
-        answer: "Mon trading bot Python tourne 24/7 sur Binance. Il combine RSI, Price Action et gestion dynamique du risque (SL/TP adaptatifs). Chaque signal déclenche automatiquement un ordre + une alerte Telegram. Le dashboard Streamlit affiche les performances en temps réel. Résultat : automatisation complète, sans surveillance.",
-    },
-    {
-        patterns: ["polymarket", "prediction", "marché", "prédictif"],
-        answer: "Polymarket, c'est de la finance décentralisée appliquée aux événements réels (élections, sport, macro). Mon système scrape les marchés en temps réel, calcule les probabilités implicites vs réelles, et détecte les inefficiences. Quand la probabilité réelle > cote du marché → alerte automatique + position.",
-    },
-    {
-        patterns: ["ai", "ia", "llm", "agent", "gpt", "claude", "langchain"],
-        answer: "Je développe des agents IA autonomes avec LangChain et les API OpenAI/Anthropic. Mes agents orchestrent des workflows complexes, utilisent des outils externes (APIs, databases, web), et maintiennent un contexte long. La clé de tout : le Prompt Engineering — formuler les bonnes instructions pour obtenir des comportements fiables.",
-    },
-    {
-        patterns: ["sql", "oracle", "database", "base", "procédure"],
-        answer: "J'ai optimisé des bases Oracle et SQL Server pour de grandes entreprises. Migration vers SAP S4, réécriture de procédures stockées critiques, réduction des temps de requête jusqu'à -70%. Les bases de données bien tuées sont souvent le bottleneck invisible des systèmes. Je diagnostique avec les plans d'exécution et des index stratégiques.",
-    },
-    {
-        patterns: ["maths", "math", "mathématiques", "enseigner", "cours", "professeur"],
-        answer: "J'ai donné des cours de maths pendant 14 ans (2011-2025), de la 3ème à la 2ème année de licence. Cette pratique m'a formé à décomposer des problèmes complexes et à les expliquer avec précision. Aujourd'hui, cette rigueur se retrouve dans mes algorithmes : chaque stratégie est une démonstration mathématique appliquée.",
-    },
-    {
-        patterns: ["miage", "bordeaux", "formation", "étude", "université", "master"],
-        answer: "Master MIAGE (Méthodes Informatiques Appliquées à la Gestion des Entreprises) à l'Université de Bordeaux — double compétence maths + informatique + gestion. C'est cette formation à l'intersection de la rigueur mathématique et de l'informatique qui me permet d'aborder aussi bien l'algorithmique que la finance quantitative.",
-    },
-    {
-        patterns: ["expérience", "experience", "parcours", "cv", "carrière", "cto", "scrum"],
-        answer: "Développeur Full-Stack (PHP) → Scrum Master (GENERIX, migration SAP S4, 3 ans) → CTO Adjoint (2 équipes, ERP Appian from scratch) → Quant/AI Developer (side projects). Chaque étape a posé une brique : la base technique, le leadership, l'architecture, et maintenant les systèmes algorithmiques autonomes.",
-    },
-    {
-        patterns: ["paris sportifs", "betting", "sport", "pari", "value bet", "kelly"],
-        answer: "Mon algo de paris sportifs analyse les cotes pour détecter des value bets : cas où la probabilité réelle d'un événement est supérieure à la probabilité implicite dans les cotes. Le sizing utilise le critère de Kelly pour maximiser la croissance du capital à long terme. C'est de la statistique appliquée à la finance alternative.",
-    },
-    {
-        patterns: ["disponible", "hire", "embauche", "recrutement", "poste", "emploi", "available", "opportunity"],
-        answer: "Oui, je suis ouvert aux opportunités — remote ou hybride Paris/IDF. Je cherche des postes qui combinent ingénierie logicielle avec data, AI ou finance quantitative. Contactez-moi : contact@yoannbeugre.dev ou LinkedIn linkedin.com/in/yoann-beugré-236b20153. Je réponds vite.",
-    },
-    {
-        patterns: ["stack", "technologie", "python", "react", "typescript", "outil"],
-        answer: "Stack principale : Python (algo, ML, bots) • TypeScript/React/Next.js (frontend) • Oracle/PostgreSQL (data) • Docker/Linux (infra). Côté AI : LangChain, OpenAI API, Anthropic Claude. Trading : Binance API, Polymarket API, WebSocket temps réel. Je choisis toujours l'outil le plus adapté au problème.",
-    },
-];
-
 const SUGGESTIONS = [
     "Comment fonctionne ton bot Binance ?",
     "C'est quoi Polymarket ?",
@@ -62,22 +19,13 @@ const SUGGESTIONS = [
     "Explique-moi les agents IA",
 ];
 
-function findAnswer(input: string): string {
-    const lower = input.toLowerCase();
-    for (const qa of QA) {
-        if (qa.patterns.some((p) => lower.includes(p))) {
-            return qa.answer;
-        }
-    }
-    return "Je ne suis pas sûr de comprendre la question. Tu peux me demander : le bot de trading, les agents IA, Polymarket, mon parcours, mes cours de maths, ou si je suis disponible. 🤖";
-}
-
 export default function AIAssistant() {
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [typing, setTyping] = useState(false);
     const [started, setStarted] = useState(false);
+    const historyRef = useRef<{ role: "user" | "assistant"; content: string }[]>([]);
     const bottomRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -90,27 +38,37 @@ export default function AIAssistant() {
             setStarted(true);
             unlockAchievement("AI_CHAT");
             setTimeout(() => {
-                setMessages([
-                    {
-                        role: "ai",
-                        text: "👋 Salut ! Je suis l'IA de Yoann. Pose-moi n'importe quelle question sur son profil, ses projets ou ses compétences.",
-                    },
-                ]);
+                setMessages([{
+                    role: "ai",
+                    text: "👋 Salut ! Je suis l'IA de Yoann. Pose-moi n'importe quelle question sur son profil, ses projets ou ses compétences.",
+                }]);
             }, 300);
         }
     };
 
-    const sendMessage = (text?: string) => {
+    const sendMessage = async (text?: string) => {
         const msg = text ?? input.trim();
-        if (!msg) return;
+        if (!msg || typing) return;
         setInput("");
         setMessages((prev) => [...prev, { role: "user", text: msg }]);
         setTyping(true);
+        historyRef.current = [...historyRef.current, { role: "user", content: msg }];
 
-        setTimeout(() => {
+        try {
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages: historyRef.current }),
+            });
+            const data = await res.json();
+            const aiText = data.text ?? "Désolé, je n'ai pas pu répondre.";
+            historyRef.current = [...historyRef.current, { role: "assistant", content: aiText }];
+            setMessages((prev) => [...prev, { role: "ai", text: aiText }]);
+        } catch {
+            setMessages((prev) => [...prev, { role: "ai", text: "Erreur de connexion. Réessaie dans un instant. 🔄" }]);
+        } finally {
             setTyping(false);
-            setMessages((prev) => [...prev, { role: "ai", text: findAnswer(msg) }]);
-        }, 800 + Math.random() * 600);
+        }
     };
 
     return (
@@ -157,12 +115,9 @@ export default function AIAssistant() {
                                 </div>
                                 <div>
                                     <div className="text-sm font-semibold text-white/90">Yoann&apos;s AI</div>
-                                    <div className="text-xs text-emerald-400 font-mono">en ligne · répond instantanément</div>
+                                    <div className="text-xs text-emerald-400 font-mono">en ligne · GPT-4o mini</div>
                                 </div>
-                                <button
-                                    className="ml-auto text-white/30 hover:text-white/70 transition-colors"
-                                    onClick={() => setOpen(false)}
-                                >
+                                <button className="ml-auto text-white/30 hover:text-white/70 transition-colors" onClick={() => setOpen(false)}>
                                     <X size={16} />
                                 </button>
                             </div>
@@ -176,12 +131,11 @@ export default function AIAssistant() {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                     >
-                                        <div
-                                            className={`max-w-[85%] px-3 py-2 rounded-xl text-sm leading-relaxed ${msg.role === "user"
-                                                    ? "bg-violet-500/30 text-white/90 rounded-br-sm"
-                                                    : "bg-white/5 border border-white/8 text-white/70 rounded-bl-sm"
-                                                }`}
-                                        >
+                                        <div className={`max-w-[85%] px-3 py-2 rounded-xl text-sm leading-relaxed ${
+                                            msg.role === "user"
+                                                ? "bg-violet-500/30 text-white/90 rounded-br-sm"
+                                                : "bg-white/5 border border-white/8 text-white/70 rounded-bl-sm"
+                                        }`}>
                                             {msg.text}
                                         </div>
                                     </motion.div>
@@ -218,7 +172,6 @@ export default function AIAssistant() {
                                         ))}
                                     </div>
                                 )}
-
                                 <div ref={bottomRef} />
                             </div>
 
@@ -234,7 +187,8 @@ export default function AIAssistant() {
                                 />
                                 <button
                                     onClick={() => sendMessage()}
-                                    className="w-8 h-8 rounded-lg bg-violet-500/40 flex items-center justify-center text-violet-300 hover:bg-violet-500/60 transition-colors flex-shrink-0"
+                                    disabled={typing}
+                                    className="w-8 h-8 rounded-lg bg-violet-500/40 flex items-center justify-center text-violet-300 hover:bg-violet-500/60 transition-colors flex-shrink-0 disabled:opacity-40"
                                 >
                                     <Send size={13} />
                                 </button>

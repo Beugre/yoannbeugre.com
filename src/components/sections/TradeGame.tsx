@@ -121,16 +121,36 @@ export default function TradeGame() {
         drawChart();
     }, [drawChart]);
 
+    // Redraw when phase becomes "playing" (canvas just mounted)
+    useEffect(() => {
+        if (phase !== "playing") return;
+        const id = requestAnimationFrame(() => {
+            // Sync canvas width with its CSS width
+            const canvas = canvasRef.current;
+            if (canvas) {
+                canvas.width = canvas.offsetWidth || 700;
+                canvas.height = canvas.offsetHeight || 200;
+            }
+            drawChart();
+        });
+        return () => cancelAnimationFrame(id);
+    }, [phase, drawChart]);
+
     const startGame = () => {
         pricesRef.current = generatePriceData(HISTORY_VISIBLE + TOTAL_ROUNDS + 5);
-        setCursor(HISTORY_VISIBLE);
         setRound(0);
         setPortfolio(10000);
         setAiPortfolio(10000);
         setPosition("none");
         setDecisions([]);
         setAiDecisions([]);
-        setPhase("playing");
+        setFeedback(null);
+        // Force cursor to 0 then back to HISTORY_VISIBLE to always trigger redraw
+        setCursor(0);
+        setTimeout(() => {
+            setCursor(HISTORY_VISIBLE);
+            setPhase("playing");
+        }, 0);
     };
 
     const makeDecision = (decision: Decision) => {
@@ -303,10 +323,10 @@ export default function TradeGame() {
                                         key={dec}
                                         onClick={() => makeDecision(dec)}
                                         className={`py-4 rounded-xl font-bold text-sm border transition-all ${dec === "BUY"
-                                                ? "border-emerald-400/30 text-emerald-400 hover:bg-emerald-400/15"
-                                                : dec === "SELL"
-                                                    ? "border-red-400/30 text-red-400 hover:bg-red-400/15"
-                                                    : "border-white/15 text-white/60 hover:bg-white/8"
+                                            ? "border-emerald-400/30 text-emerald-400 hover:bg-emerald-400/15"
+                                            : dec === "SELL"
+                                                ? "border-red-400/30 text-red-400 hover:bg-red-400/15"
+                                                : "border-white/15 text-white/60 hover:bg-white/8"
                                             }`}
                                         whileHover={{ scale: 1.03 }}
                                         whileTap={{ scale: 0.97 }}

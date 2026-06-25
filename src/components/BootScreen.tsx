@@ -56,19 +56,27 @@ export default function BootScreen() {
     useEffect(() => {
         if (!done) return;
         const handler = (e: KeyboardEvent) => {
-            if (e.key === "Enter") handleContinue();
+            if (e.key === "Enter") dismiss();
         };
         window.addEventListener("keydown", handler);
-        return () => window.removeEventListener("keydown", handler);
+        // Auto-dismiss 1.5s after boot complete
+        const t = setTimeout(dismiss, 1500);
+        return () => {
+            window.removeEventListener("keydown", handler);
+            clearTimeout(t);
+        };
     }, [done]);
 
-    const handleContinue = () => {
-        if (!done) return;
+    const dismiss = () => {
+        if (exiting) return;
         setExiting(true);
         sessionStorage.setItem("boot_seen", "1");
         unlockAchievement("BOOT");
-        setTimeout(() => setShow(false), 600);
+        setTimeout(() => setShow(false), 700);
     };
+
+    // Legacy name kept for onClick
+    const handleContinue = dismiss;
 
     if (!show) return null;
 
@@ -80,6 +88,7 @@ export default function BootScreen() {
                     onClick={handleContinue}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.6 }}
+                    style={exiting ? { pointerEvents: "none" } : {}}
                 >
                     {/* CRT scanlines overlay */}
                     <div
@@ -120,7 +129,7 @@ export default function BootScreen() {
                     {/* Skip button */}
                     <button
                         className="absolute top-4 right-4 text-xs font-mono text-white/20 hover:text-white/50 transition-colors z-20"
-                        onClick={(e) => { e.stopPropagation(); setDone(true); handleContinue(); }}
+                        onClick={(e) => { e.stopPropagation(); dismiss(); }}
                     >
                         SKIP →
                     </button>

@@ -43,8 +43,15 @@ export default function Navigation() {
 
     const handleClick = (href: string) => {
         setIsOpen(false);
-        const el = document.querySelector(href);
-        el?.scrollIntoView({ behavior: "smooth" });
+        const el = document.querySelector(href) as HTMLElement | null;
+        if (!el) return;
+        // Use Lenis if available, fallback to scrollIntoView
+        const lenisEvent = new CustomEvent("lenis:scrollTo", { detail: { target: el, offset: -64 } });
+        if (!window.dispatchEvent(lenisEvent)) {
+            el.scrollIntoView({ behavior: "smooth" });
+        } else {
+            el.scrollIntoView({ behavior: "smooth" });
+        }
     };
 
     return (
@@ -87,8 +94,8 @@ export default function Navigation() {
                                 <motion.button
                                     onClick={() => handleClick(link.href)}
                                     className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 font-medium ${activeSection === link.href.slice(1)
-                                            ? "text-cyan-400 bg-cyan-400/10"
-                                            : "text-white/50 hover:text-white/90 hover:bg-white/5"
+                                        ? "text-cyan-400 bg-cyan-400/10"
+                                        : "text-white/50 hover:text-white/90 hover:bg-white/5"
                                         }`}
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}

@@ -6,13 +6,13 @@ import { Trophy } from "lucide-react";
 import {
     subscribeAchievement,
     ACHIEVEMENTS,
-  isUnlocked,
-  AchievementId,
+    isUnlocked,
+    AchievementId,
 } from "@/lib/achievements";
 
 function getAll(): AchievementId[] {
-  if (typeof window === "undefined") return [];
-  return (Object.keys(ACHIEVEMENTS) as AchievementId[]).filter(isUnlocked);
+    if (typeof window === "undefined") return [];
+    return (Object.keys(ACHIEVEMENTS) as AchievementId[]).filter(isUnlocked);
 }
 
 export default function AchievementsSystem() {
@@ -129,8 +129,8 @@ export default function AchievementsSystem() {
                                         <div
                                             key={ach.id}
                                             className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${isUnlocked
-                                                    ? "border-white/10 bg-white/5"
-                                                    : "border-white/5 bg-white/[0.02] opacity-40"
+                                                ? "border-white/10 bg-white/5"
+                                                : "border-white/5 bg-white/[0.02] opacity-40"
                                                 }`}
                                         >
                                             <div className="text-xl">{isUnlocked ? ach.icon : "🔒"}</div>
