@@ -27,11 +27,12 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    cursor: none;
   }
 
-  @media (pointer: coarse) {
-    body { cursor: auto; }
+  /* Curseur personnalisé uniquement sur desktop non-touch */
+  @media (pointer: fine) {
+    body { cursor: none; }
+    a, button, [role="button"], [data-cursor] { cursor: none; }
   }
 
   ::selection {
