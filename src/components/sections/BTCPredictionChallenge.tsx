@@ -3,6 +3,57 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { unlockAchievement } from "@/lib/achievements";
 
+// ─── Sound engine (Web Audio API, no files needed) ──────────────────────────
+function playTone(freq: number, dur: number, type: OscillatorType = "sine", vol = 0.15) {
+  try {
+    const ctx = new (window.AudioContext || (window as unknown as {webkitAudioContext: typeof AudioContext}).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = freq; osc.type = type;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+    setTimeout(() => ctx.close(), dur * 1000 + 100);
+  } catch { /* silently fail if audio not available */ }
+}
+
+function playSuccess() { [523, 659, 784].forEach((f, i) => setTimeout(() => playTone(f, 0.2, "sine", 0.12), i * 90)); }
+function playError()   { [300, 220].forEach((f, i) => setTimeout(() => playTone(f, 0.15, "sawtooth", 0.08), i * 100)); }
+function playClick()   { playTone(880, 0.06, "square", 0.06); }
+function playReveal()  { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playTone(f, 0.12, "sine", 0.1), i * 70)); }
+
+// ─── Confetti burst ──────────────────────────────────────────────────────────
+function confettiBurst(x: number, y: number, count = 120) {
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:fixed;inset:0;z-index:9999;pointer-events:none";
+  document.body.appendChild(canvas);
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const ctx = canvas.getContext("2d")!;
+  const COLORS = ["#00d4ff", "#8b5cf6", "#10b981", "#f0b90b", "#ef4444", "#ffffff", "#facc15"];
+  const particles = Array.from({ length: count }, () => ({
+    x, y, vx: (Math.random() - 0.5) * 20, vy: -(Math.random() * 18 + 5),
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    w: Math.random() * 10 + 4, h: Math.random() * 5 + 3,
+    rot: Math.random() * Math.PI * 2, rotV: (Math.random() - 0.5) * 0.35, life: 1,
+  }));
+  const frame = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.65; p.vx *= 0.97;
+      p.life -= 0.014; p.rot += p.rotV;
+      if (p.life > 0) {
+        alive = true;
+        ctx.save(); ctx.globalAlpha = p.life; ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.fillStyle = p.color; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+      }
+    });
+    if (alive) requestAnimationFrame(frame); else document.body.removeChild(canvas);
+  };
+  requestAnimationFrame(frame);
+}
+
 const SHOW_N = 20;
 const REPLAY_N = 8;
 const REPLAY_MS = 420;
@@ -140,7 +191,7 @@ export default function BTCPredictionChallenge() {
   useEffect(()=>{
     if(phase!=="analyzing")return;
     setAiStep(0); let s=0;
-    aiRef.current=setInterval(()=>{ s++; setAiStep(s); if(s>=5){ clearInterval(aiRef.current!); setTimeout(()=>{ setReplayIdx(0); setPhase("replay"); },700); } },380);
+    aiRef.current=setInterval(()=>{ s++; setAiStep(s); if(s>=5){ clearInterval(aiRef.current!); setTimeout(()=>{ setReplayIdx(0); setPhase("replay"); playReveal(); },700); } },380);
     return()=>{ if(aiRef.current)clearInterval(aiRef.current); };
   },[phase]);
 
@@ -161,7 +212,7 @@ export default function BTCPredictionChallenge() {
     setPhase("predict");
   },[]);
 
-  const choose=useCallback((ch:Choice)=>{ setGs(prev=>({...prev,hChoice:ch})); setPhase("analyzing"); },[]);
+  const choose=useCallback((ch:Choice)=>{ playClick(); setGs(prev=>({...prev,hChoice:ch})); setPhase("analyzing"); },[]);
 
   const nextRound=useCallback(()=>{
     setGs(prev=>{
@@ -284,12 +335,12 @@ export default function BTCPredictionChallenge() {
             <div style={S({textAlign:"center",marginBottom:6})}>
               <div style={S({fontSize:12,fontFamily:"monospace",color:"rgba(255,255,255,0.4)",marginBottom:10,letterSpacing:2,textTransform:"uppercase"})}>Dans 5 minutes, le BTC sera...</div>
               <div style={S({display:"grid",gridTemplateColumns:"1fr 1fr",gap:12})}>
-                <button type="button" onClick={()=>choose("H")} style={{cursor:"pointer",background:"rgba(16,185,129,0.1)",border:"2px solid rgba(16,185,129,0.45)",borderRadius:16,padding:"22px 16px",display:"flex",flexDirection:"column",alignItems:"center",gap:6,color:"#10b981",fontWeight:900}}>
+                <button type="button" onClick={()=>choose("H")} style={{cursor:"pointer",background:"rgba(16,185,129,0.12)",border:"2.5px solid rgba(16,185,129,0.5)",borderRadius:20,padding:"26px 20px",display:"flex",flexDirection:"column",alignItems:"center",gap:8,color:"#10b981",fontWeight:900,boxShadow:"0 0 30px rgba(16,185,129,0.15)",transition:"all 0.15s"}}>
                   <span style={{fontSize:40}}>▲</span>
                   <span style={{fontSize:20,letterSpacing:4}}>HIGHER</span>
                   <span style={{fontSize:10,fontFamily:"monospace",opacity:0.55}}>Plus haut [H]</span>
                 </button>
-                <button type="button" onClick={()=>choose("L")} style={{cursor:"pointer",background:"rgba(239,68,68,0.1)",border:"2px solid rgba(239,68,68,0.45)",borderRadius:16,padding:"22px 16px",display:"flex",flexDirection:"column",alignItems:"center",gap:6,color:"#ef4444",fontWeight:900}}>
+                <button type="button" onClick={()=>choose("L")} style={{cursor:"pointer",background:"rgba(239,68,68,0.12)",border:"2.5px solid rgba(239,68,68,0.5)",borderRadius:20,padding:"26px 20px",display:"flex",flexDirection:"column",alignItems:"center",gap:8,color:"#ef4444",fontWeight:900,boxShadow:"0 0 30px rgba(239,68,68,0.15)",transition:"all 0.15s"}}>
                   <span style={{fontSize:40}}>▼</span>
                   <span style={{fontSize:20,letterSpacing:4}}>LOWER</span>
                   <span style={{fontSize:10,fontFamily:"monospace",opacity:0.55}}>Plus bas [L]</span>

@@ -13,6 +13,7 @@ import ArchitectureSection from "@/components/sections/ArchitectureSection";
 import TechStackSection from "@/components/sections/TechStackSection";
 import GitHubSection from "@/components/sections/GitHubSection";
 import ContactSection from "@/components/sections/ContactSection";
+import GSAPReveal from "@/components/GSAPReveal";
 import BossSection from "@/components/sections/BossSection";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
@@ -37,6 +38,7 @@ export default function Home() {
       <ProgressTracker />
       <EasterEggTerminal />
       <AIAssistant />
+      <GSAPReveal />
       <Navigation />
       <HeroSection />
       <AboutSection />

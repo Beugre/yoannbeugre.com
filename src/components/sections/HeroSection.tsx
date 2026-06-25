@@ -1,88 +1,111 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Points, PointMaterial, Sphere, MeshDistortMaterial, Float } from "@react-three/drei";
+import * as THREE from "three";
 import Image from "next/image";
 
-const ROLES = ["Software Engineer", "AI Engineer", "Quant Developer", "Algorithmic Builder", "Bot Architect", "Math Enthusiast"];
+// ─── 3D: Neural sphere ────────────────────────────────────────────────────────
+function NeuralSphere() {
+  const mesh = useRef<THREE.Mesh>(null);
+  const { mouse } = useThree();
 
-function NeuralCanvas() {
-  const ref = useRef<HTMLCanvasElement>(null);
-  const mouse = useRef({ x: 0, y: 0 });
-  const raf = useRef<number>(0);
+  useFrame((state) => {
+    if (!mesh.current) return;
+    mesh.current.rotation.x = THREE.MathUtils.lerp(mesh.current.rotation.x, mouse.y * 0.4, 0.05);
+    mesh.current.rotation.y = THREE.MathUtils.lerp(mesh.current.rotation.y, mouse.x * 0.5 + state.clock.elapsedTime * 0.08, 0.05);
+  });
 
-  useEffect(() => {
-    const canvas = ref.current; if (!canvas) return;
-    const ctx = canvas.getContext("2d"); if (!ctx) return;
-
-    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    resize(); window.addEventListener("resize", resize);
-    window.addEventListener("mousemove", e => { mouse.current = { x: e.clientX, y: e.clientY }; });
-
-    type N = { x: number; y: number; vx: number; vy: number; r: number; pulse: number; };
-    const nodes: N[] = Array.from({ length: 55 }, () => ({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
-      r: Math.random() * 2 + 1, pulse: Math.random() * Math.PI * 2,
-    }));
-
-    let t = 0;
-    const draw = () => {
-      t += 0.008;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const mx = mouse.current.x, my = mouse.current.y;
-
-      nodes.forEach(n => {
-        n.pulse += 0.02;
-        const dx = mx - n.x, dy = my - n.y, dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 180) { n.vx += dx / dist * 0.015; n.vy += dy / dist * 0.015; }
-        n.vx *= 0.98; n.vy *= 0.98;
-        n.x += n.vx; n.y += n.vy;
-        if (n.x < 0) n.x = canvas.width; if (n.x > canvas.width) n.x = 0;
-        if (n.y < 0) n.y = canvas.height; if (n.y > canvas.height) n.y = 0;
-      });
-
-      // Connections
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
-          const d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 140) {
-            const a = (1 - d / 140) * 0.35;
-            const fromMouse = Math.sqrt((mx - nodes[i].x) ** 2 + (my - nodes[i].y) ** 2);
-            const boost = fromMouse < 200 ? 1.8 : 1;
-            ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.strokeStyle = `rgba(0,212,255,${a * boost})`; ctx.lineWidth = 0.6 * boost; ctx.stroke();
-          }
-        }
-      }
-
-      // Nodes
-      nodes.forEach(n => {
-        const fromMouse = Math.sqrt((mx - n.x) ** 2 + (my - n.y) ** 2);
-        const glow = fromMouse < 150 ? 1.6 : 1;
-        const alpha = 0.4 + Math.sin(n.pulse) * 0.25;
-        ctx.beginPath(); ctx.arc(n.x, n.y, n.r * glow, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0,212,255,${alpha * glow})`; 
-        if (glow > 1) { ctx.shadowBlur = 10; ctx.shadowColor = "#00d4ff"; }
-        ctx.fill(); ctx.shadowBlur = 0;
-      });
-
-      // Floating data streams
-      for (let i = 0; i < 5; i++) {
-        const x = (i * 180 + t * 30) % canvas.width;
-        const y = canvas.height * 0.3 + Math.sin(t + i) * 80;
-        ctx.font = "9px monospace"; ctx.fillStyle = `rgba(139,92,246,${0.15 + Math.sin(t + i) * 0.1})`;
-        ctx.fillText(["0.618", "RSI", "BTC", "∑", "λ=0.08"][i], x, y);
-      }
-
-      raf.current = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => { window.removeEventListener("resize", resize); cancelAnimationFrame(raf.current); };
-  }, []);
-
-  return <canvas ref={ref} className="absolute inset-0 w-full h-full" style={{ opacity: 0.6 }} />;
+  return (
+    <Float speed={1.4} rotationIntensity={0.3} floatIntensity={0.6}>
+      <mesh ref={mesh}>
+        <Sphere args={[1, 64, 64]}>
+          <MeshDistortMaterial
+            color="#00d4ff"
+            attach="material"
+            distort={0.38}
+            speed={2.2}
+            roughness={0}
+            metalness={0.1}
+            transparent
+            opacity={0.12}
+            wireframe={false}
+          />
+        </Sphere>
+        {/* Inner core */}
+        <Sphere args={[0.72, 32, 32]}>
+          <MeshDistortMaterial
+            color="#8b5cf6"
+            distort={0.25}
+            speed={3}
+            roughness={0}
+            transparent
+            opacity={0.18}
+          />
+        </Sphere>
+      </mesh>
+    </Float>
+  );
 }
+
+// ─── 3D: Particle field ───────────────────────────────────────────────────────
+function ParticleField() {
+  const points = useRef<THREE.Points>(null);
+  const COUNT = 2800;
+
+  const positions = new Float32Array(COUNT * 3);
+  for (let i = 0; i < COUNT; i++) {
+    const r = 1.8 + Math.random() * 2.2;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    positions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    positions[i * 3 + 2] = r * Math.cos(phi);
+  }
+
+  useFrame((state) => {
+    if (!points.current) return;
+    points.current.rotation.y = state.clock.elapsedTime * 0.04;
+    points.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.03) * 0.12;
+  });
+
+  return (
+    <Points ref={points} positions={positions} stride={3} frustumCulled={false}>
+      <PointMaterial transparent color="#00d4ff" size={0.012} sizeAttenuation depthWrite={false} opacity={0.65} />
+    </Points>
+  );
+}
+
+// ─── 3D: Orbiting rings ───────────────────────────────────────────────────────
+function OrbitRings() {
+  const g1 = useRef<THREE.Group>(null);
+  const g2 = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (g1.current) g1.current.rotation.z = state.clock.elapsedTime * 0.18;
+    if (g2.current) g2.current.rotation.z = -state.clock.elapsedTime * 0.12;
+  });
+
+  return (
+    <>
+      <group ref={g1} rotation={[Math.PI / 3, 0, 0]}>
+        <mesh>
+          <torusGeometry args={[1.55, 0.006, 16, 120]} />
+          <meshBasicMaterial color="#00d4ff" transparent opacity={0.3} />
+        </mesh>
+      </group>
+      <group ref={g2} rotation={[-Math.PI / 5, Math.PI / 4, 0]}>
+        <mesh>
+          <torusGeometry args={[1.8, 0.004, 16, 120]} />
+          <meshBasicMaterial color="#8b5cf6" transparent opacity={0.22} />
+        </mesh>
+      </group>
+    </>
+  );
+}
+
+const ROLES = ["Software Engineer", "AI Engineer", "Quant Developer", "Algorithmic Builder", "Bot Architect", "Math Enthusiast"];
 
 function TypedRole() {
   const [displayed, setDisplayed] = useState("");
@@ -91,130 +114,155 @@ function TypedRole() {
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (paused) { const t = setTimeout(() => { setPaused(false); setDel(true); }, 1800); return () => clearTimeout(t); }
+    if (paused) { const t = setTimeout(() => { setPaused(false); setDel(true); }, 2000); return () => clearTimeout(t); }
     const cur = ROLES[ri];
     if (!del) {
-      if (displayed.length < cur.length) { const t = setTimeout(() => setDisplayed(cur.slice(0, displayed.length + 1)), 55); return () => clearTimeout(t); }
+      if (displayed.length < cur.length) { const t = setTimeout(() => setDisplayed(cur.slice(0, displayed.length + 1)), 52); return () => clearTimeout(t); }
       setPaused(true);
     } else {
-      if (displayed.length > 0) { const t = setTimeout(() => setDisplayed(s => s.slice(0, -1)), 30); return () => clearTimeout(t); }
+      if (displayed.length > 0) { const t = setTimeout(() => setDisplayed(s => s.slice(0, -1)), 28); return () => clearTimeout(t); }
       setDel(false); setRi(i => (i + 1) % ROLES.length);
     }
   }, [displayed, del, ri, paused]);
 
-  return <><span className="text-cyan-400">{displayed}</span><span className="animate-pulse text-cyan-400">|</span></>;
+  return <><span className="text-cyan-400">{displayed}</span><span className="text-cyan-400 animate-pulse">|</span></>;
 }
 
 export default function HeroSection() {
   const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => { const t = setTimeout(() => setLoaded(true), 400); return () => clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(() => setLoaded(true), 200); return () => clearTimeout(t); }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Deep background */}
-      <div className="absolute inset-0 bg-[#030712]" />
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0,212,255,0.04) 0%, transparent 70%)" }} />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#030712]">
 
-      {/* Grid */}
-      <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: "linear-gradient(rgba(0,212,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,1) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
+      {/* 3D Canvas — full background */}
+      <div className="absolute inset-0 z-0">
+        <Canvas camera={{ position: [0, 0, 4.5], fov: 55 }} gl={{ antialias: true, alpha: true }}>
+          <Suspense fallback={null}>
+            <ambientLight intensity={0.15} />
+            <pointLight position={[10, 10, 10]} intensity={0.5} color="#00d4ff" />
+            <pointLight position={[-10, -10, -5]} intensity={0.3} color="#8b5cf6" />
+            <NeuralSphere />
+            <ParticleField />
+            <OrbitRings />
+          </Suspense>
+        </Canvas>
+      </div>
 
-      {/* Neural network */}
-      <NeuralCanvas />
+      {/* Grid overlay */}
+      <div className="absolute inset-0 z-[1] opacity-[0.022]" style={{
+        backgroundImage: "linear-gradient(rgba(0,212,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,1) 1px,transparent 1px)",
+        backgroundSize: "60px 60px"
+      }} />
 
-      {/* Scan line */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(transparent 50%,rgba(0,212,255,0.008) 50%)", backgroundSize: "100% 3px" }} />
+      {/* Scan lines */}
+      <div className="absolute inset-0 z-[1] pointer-events-none" style={{
+        background: "linear-gradient(transparent 50%,rgba(0,212,255,0.006) 50%)",
+        backgroundSize: "100% 3px"
+      }} />
+
+      {/* Radial gradient center focus */}
+      <div className="absolute inset-0 z-[1] pointer-events-none" style={{
+        background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(3,7,18,0) 0%, rgba(3,7,18,0.6) 100%)"
+      }} />
+
+      {/* HUD corners */}
+      <div className="absolute top-20 left-8 z-10 hidden lg:block">
+        <div className="text-[10px] font-mono text-cyan-400/35 leading-5">
+          <div>◈ YOANN.CORE.v1.0</div>
+          <div>STATUS: <span className="text-emerald-400/50">ONLINE</span></div>
+          <div>ALGO: <span className="text-violet-400/50">RSI+DUAL-MOM</span></div>
+          <div>ENV: <span className="text-yellow-400/50">PRODUCTION</span></div>
+        </div>
+      </div>
+      <div className="absolute top-20 right-8 z-10 hidden lg:block text-right">
+        <div className="text-[10px] font-mono text-cyan-400/35 leading-5">
+          <div>QUANT·AI·SWE</div>
+          <div>MODULES: <span className="text-white/30">8/8</span></div>
+          <div>AGENTS: <span className="text-emerald-400/50">5 ACTIVE</span></div>
+        </div>
+      </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+      <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
 
         {/* Status badge */}
-        <div className={`flex items-center justify-center mb-8 transition-all duration-700 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"}`}>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-400/20 bg-cyan-400/5 backdrop-blur-sm">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-mono text-cyan-300/70 tracking-[0.2em] uppercase">YOANN CORE — System Online</span>
+        <div className={`flex justify-center mb-8 transition-all duration-700 ${loaded ? "opacity-100" : "opacity-0 -translate-y-4"}`}>
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-cyan-400/25">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-mono text-cyan-300/65 tracking-[0.2em]">YOANN CORE — SYSTEM ONLINE</span>
           </div>
         </div>
 
-        {/* HUD corners */}
-        <div className="absolute top-8 left-8 text-[10px] font-mono text-white/15 text-left hidden md:block">
-          <div className="text-cyan-400/40">◈ YOANN.CORE.v1.0</div>
-          <div className="mt-1">STATUS: <span className="text-emerald-400/60">ACTIVE</span></div>
-          <div className="mt-1">MODULES: <span className="text-white/30">7/8</span></div>
-        </div>
-        <div className="absolute top-8 right-8 text-[10px] font-mono text-white/15 text-right hidden md:block">
-          <div className="text-cyan-400/40">QUANT·AI·SWE</div>
-          <div className="mt-1">ALGO: <span className="text-violet-400/60">RSI+DUAL-MOM</span></div>
-          <div className="mt-1">ENV: <span className="text-yellow-400/60">PRODUCTION</span></div>
-        </div>
-
-        {/* Photo + Name layout */}
-        <div className={`flex flex-col items-center gap-4 mb-6 transition-all duration-900 delay-100 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}>
-          
-          {/* Photo with HUD ring */}
-          <div className="relative mb-2">
-            {/* Rotating ring */}
-            <div className="absolute inset-0 rounded-full" style={{ background: "conic-gradient(from 0deg, #00d4ff, #8b5cf6, #00d4ff)", animation: "spin 8s linear infinite", padding: 2, borderRadius: "50%", width: 100, height: 100, top: -4, left: -4 }}>
-              <div style={{ background: "#030712", borderRadius: "50%", width: "100%", height: "100%", boxSizing: "border-box" }} />
+        {/* Photo avatar with glow ring */}
+        <div className={`flex justify-center mb-6 transition-all duration-700 delay-100 ${loaded ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}>
+          <div className="relative">
+            {/* Animated glow ring */}
+            <div className="absolute inset-0 rounded-full animate-spin" style={{
+              background: "conic-gradient(from 0deg, #00d4ff, #8b5cf6, #10b981, #00d4ff)",
+              padding: 2, borderRadius: "50%", width: 92, height: 92, top: -4, left: -4,
+              animation: "spin 8s linear infinite"
+            }}>
+              <div style={{ background: "#030712", borderRadius: "50%", width: "100%", height: "100%" }} />
             </div>
-            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-cyan-400/30">
-              <Image src="/yoann.jpg" alt="Yoann Beugré" fill className="object-cover object-top" style={{ filter: "contrast(1.08) saturate(0.85)" }} priority />
-              <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 60%, rgba(3,7,18,0.6))" }} />
+            <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-cyan-400/20">
+              <Image src="/yoann.jpg" alt="Yoann" fill className="object-cover object-top" style={{ filter: "contrast(1.1) saturate(0.85)" }} priority />
             </div>
-            {/* HUD dots */}
-            <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#030712]" style={{ animation: "pulse 2s infinite" }} />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#030712]" />
           </div>
+        </div>
 
-          {/* Name */}
-          <div>
-            <h1 className="text-5xl md:text-7xl lg:text-[8rem] font-black tracking-tighter leading-none" style={{ background: "linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              YOANN
-            </h1>
-            <h1 className="text-5xl md:text-7xl lg:text-[8rem] font-black tracking-tighter leading-none text-gradient">
-              BEUGRÉ
-            </h1>
-          </div>
+        {/* Name */}
+        <div className={`mb-5 transition-all duration-900 delay-150 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          <h1 className="font-black tracking-tighter leading-none" style={{
+            fontSize: "clamp(52px, 11vw, 130px)",
+            background: "linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.75) 100%)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            filter: "drop-shadow(0 0 40px rgba(0,212,255,0.15))"
+          }}>
+            YOANN BEUGRÉ
+          </h1>
         </div>
 
         {/* Typed role */}
-        <div className={`h-8 flex items-center justify-center mb-6 transition-all duration-700 delay-200 ${loaded ? "opacity-100" : "opacity-0"}`}>
-          <span className="text-white/30 font-mono text-xl mr-2">{"<"}</span>
-          <span className="text-xl font-mono font-semibold min-w-[280px] text-left"><TypedRole /></span>
-          <span className="text-white/30 font-mono text-xl ml-2">{"/>"}</span>
+        <div className={`h-9 flex items-center justify-center mb-6 transition-all duration-700 delay-200 ${loaded ? "opacity-100" : "opacity-0"}`}>
+          <span className="text-white/25 font-mono text-lg mr-2">{"<"}</span>
+          <span className="text-lg md:text-xl font-mono font-semibold min-w-[260px] text-left">
+            <TypedRole />
+          </span>
+          <span className="text-white/25 font-mono text-lg ml-2">{"/>"}</span>
         </div>
 
         {/* Tagline */}
-        <p className={`max-w-2xl mx-auto text-white/40 text-base leading-relaxed mb-10 transition-all duration-700 delay-300 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-          Je conçois des <span className="text-cyan-400">systèmes intelligents</span> à l&apos;intersection du code, des mathématiques,
-          de l&apos;IA et de la <span className="text-violet-400">finance quantitative</span>. Chaque ligne de code est une démonstration mathématique appliquée.
+        <p className={`max-w-xl mx-auto text-white/40 leading-relaxed mb-10 transition-all duration-700 delay-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+          style={{ fontSize: "clamp(13px, 2vw, 16px)" }}>
+          Je conçois des <span className="text-cyan-400 font-medium">systèmes intelligents</span> à l&apos;intersection du code, des mathématiques, de l&apos;IA et de la{" "}
+          <span className="text-violet-400 font-medium">finance quantitative</span>.
         </p>
 
         {/* CTAs */}
-        <div className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 delay-400 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-          <button
-            onClick={() => document.querySelector("#trade")?.scrollIntoView({ behavior: "smooth" })}
-            type="button" style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 28px", borderRadius: 14, fontWeight: 900, fontSize: 15, color: "#000", background: "linear-gradient(135deg,#00d4ff,#8b5cf6)", border: "none" }}
-          >
+        <div className={`flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 transition-all duration-700 delay-400 ${loaded ? "opacity-100" : "opacity-0 translate-y-4"}`}>
+          <button type="button" onClick={() => document.querySelector("#trade")?.scrollIntoView({ behavior: "smooth" })}
+            style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 28px", borderRadius: 14, fontWeight: 900, fontSize: 15, color: "#000", background: "linear-gradient(135deg,#00d4ff,#8b5cf6)", border: "none", boxShadow: "0 0 32px rgba(0,212,255,0.25), 0 0 64px rgba(139,92,246,0.15)" }}>
             🚀 Start the mission
           </button>
-          <button
-            onClick={() => document.querySelector("#projects")?.scrollIntoView({ behavior: "smooth" })}
-            type="button" style={{ cursor: "pointer", padding: "14px 28px", borderRadius: 14, fontWeight: 700, fontSize: 15, color: "rgba(255,255,255,0.65)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)" }}
-          >
-            View projects →
+          <button type="button" onClick={() => document.querySelector("#projects")?.scrollIntoView({ behavior: "smooth" })}
+            style={{ cursor: "pointer", padding: "13px 28px", borderRadius: 14, fontWeight: 700, fontSize: 15, color: "rgba(255,255,255,0.7)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(10px)" }}>
+            Research Lab →
           </button>
         </div>
 
-        {/* Scroll cue */}
-        <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-700 delay-700 ${loaded ? "opacity-100" : "opacity-0"}`}>
-          <span className="text-xs font-mono text-white/20 tracking-widest uppercase">Explore</span>
-          <div className="w-px h-10 bg-gradient-to-b from-cyan-400/50 to-transparent" style={{ animation: "heroScroll 1.5s ease-in-out infinite" }} />
+        {/* Scroll indicator */}
+        <div className={`flex flex-col items-center gap-2 transition-all duration-700 delay-700 ${loaded ? "opacity-100" : "opacity-0"}`}>
+          <span className="text-[10px] font-mono text-white/20 tracking-widest uppercase">Scroll to explore</span>
+          <div style={{ width: 1, height: 40, background: "linear-gradient(180deg,rgba(0,212,255,0.5),transparent)", animation: "heroScroll 1.5s ease-in-out infinite" }} />
         </div>
       </div>
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes heroScroll { 0%,100%{opacity:0.3;transform:scaleY(1)} 50%{opacity:0.8;transform:scaleY(1.3)} }
+        @keyframes heroScroll { 0%,100%{opacity:0.3;transform:scaleY(1)} 50%{opacity:0.9;transform:scaleY(1.4)} }
       `}</style>
     </section>
   );
