@@ -131,6 +131,10 @@ function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Can
     linePts += ` C${cpx},${py(all[i-1].c)} ${cpx},${py(all[i].c)} ${px(i)},${py(all[i].c)}`;
   }
 
+  const clipId = `clip-${animKey}`;
+  const dur = showReplay ? `${REPLAY_N * 0.4}s` : "1.1s";
+  const rightEdge = px(all.length - 1) + 10;
+
   return (
     <svg viewBox={`0 0 ${W} ${H+VH}`} className="w-full" style={{height:180}} preserveAspectRatio="none">
       <defs>
@@ -139,6 +143,21 @@ function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Can
           <stop offset="0%" stopColor={up?"rgba(240,185,11,0.2)":"rgba(239,68,68,0.15)"}/>
           <stop offset="100%" stopColor="rgba(0,0,0,0)"/>
         </linearGradient>
+        {/* ClipPath rectangle that slides from left to right — THE smooth reveal technique */}
+        <clipPath id={clipId}>
+          <rect x={ML} y={0} height={H+VH} width={0}>
+            <animate
+              attributeName="width"
+              from="0"
+              to={String(rightEdge - ML + 20)}
+              dur={dur}
+              fill="freeze"
+              calcMode="spline"
+              keyTimes="0;1"
+              keySplines="0.4 0 0.2 1"
+            />
+          </rect>
+        </clipPath>
       </defs>
       {ticks.map((v,i)=>(
         <g key={i}>
@@ -158,28 +177,14 @@ function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Can
         return <g key={i}><line x1={x} y1={py(c.h)} x2={x} y2={py(c.l)} stroke={col} strokeWidth="0.6" opacity="0.5"/><rect x={x-cw/2} y={bT} width={cw} height={bH} fill={col} rx="0.3"/></g>;
       })}
       {all.length>1&&(
-        <>
+        /* Apply clip to the line + fill group */
+        <g clipPath={`url(#${clipId})`} key={`grp-${animKey}-${all.length}`}>
           <path d={linePts+` L${px(all.length-1)},${H-MB-VH} L${px(0)},${H-MB-VH} Z`} fill="url(#ag)"/>
-          {/* CSS animation via style — pas de valeur fixe strokeDasharray */}
-          <path
-            key={`line-${animKey}-${all.length}`}
-            d={linePts}
-            fill="none"
-            stroke="#f0b90b"
-            strokeWidth="2.2"
-            filter="url(#glw)"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{
-              strokeDasharray: 9999,
-              strokeDashoffset: 9999,
-              animation: `drawBTCLine ${showReplay ? REPLAY_N * 0.38 : 0.85}s cubic-bezier(0.25,0.1,0.25,1) forwards`,
-            }}
-          />
+          <path d={linePts} fill="none" stroke="#f0b90b" strokeWidth="2.2" filter="url(#glw)" strokeLinecap="round" strokeLinejoin="round"/>
           <circle cx={px(all.length-1)} cy={py(last.c)} r="4" fill="#f0b90b" filter="url(#glw)">
             <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
           </circle>
-        </>
+        </g>
       )}
       <line x1={ML} y1={py(tgt)} x2={W-MR} y2={py(tgt)} stroke="rgba(240,185,11,0.45)" strokeWidth="1" strokeDasharray="4,3"/>
       <rect x={W-MR-54} y={py(tgt)-7} width={56} height={14} rx="2.5" fill="rgba(240,185,11,0.12)" stroke="rgba(240,185,11,0.5)" strokeWidth="0.5"/>
