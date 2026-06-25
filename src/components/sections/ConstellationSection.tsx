@@ -2,7 +2,7 @@
 
 import { useRef, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Text, Line } from "@react-three/drei";
+import { Line, Html } from "@react-three/drei";
 import * as THREE from "three";
 
 interface SkillNode {
@@ -69,7 +69,7 @@ function ConstellationScene({ hoveredId, setHoveredId }: { hoveredId: string | n
                 );
             })}
 
-            {/* Nodes */}
+            {/* Nodes — spheres only, labels via HTML overlay */}
             {SKILLS.map((skill) => {
                 const isHovered = hoveredId === skill.id;
                 const isConnected = hoveredId ? EDGES.some(e => (e.from === hoveredId && e.to === skill.id) || (e.to === hoveredId && e.from === skill.id)) : false;
@@ -83,30 +83,35 @@ function ConstellationScene({ hoveredId, setHoveredId }: { hoveredId: string | n
                             <meshBasicMaterial
                                 color={skill.color}
                                 transparent
-                                opacity={dimmed ? 0.08 : isHovered ? 0.9 : isConnected ? 0.7 : 0.5}
+                                opacity={dimmed ? 0.08 : isHovered ? 1 : isConnected ? 0.75 : 0.55}
                             />
                         </mesh>
-
-                        {/* Invisible larger hitbox */}
+                        {/* Hitbox */}
                         <mesh
                             onPointerEnter={() => setHoveredId(skill.id)}
                             onPointerLeave={() => setHoveredId(null)}
                         >
-                            <sphereGeometry args={[0.5, 8, 8]} />
+                            <sphereGeometry args={[0.55, 8, 8]} />
                             <meshBasicMaterial transparent opacity={0} />
                         </mesh>
-
-                        {/* Label */}
-                        <Text
-                            position={[0, skill.size * 1.6 + 0.1, 0]}
-                            fontSize={isHovered ? 0.16 : 0.11}
-                            color={isHovered ? skill.color : (dimmed ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.65)")}
-                            anchorX="center"
-                            anchorY="bottom"
-                            font="/fonts/JetBrainsMono-Regular.ttf"
+                        {/* HTML label via drei — no font file needed */}
+                        <Html
+                            position={[0, skill.size * 1.8 + 0.05, 0]}
+                            center
+                            style={{ pointerEvents: "none" }}
                         >
-                            {skill.label}
-                        </Text>
+                            <span style={{
+                                fontFamily: "monospace",
+                                fontSize: isHovered ? 11 : 9,
+                                fontWeight: isHovered ? 700 : 400,
+                                color: dimmed ? "rgba(255,255,255,0.12)" : isHovered ? skill.color : "rgba(255,255,255,0.6)",
+                                whiteSpace: "nowrap",
+                                textShadow: isHovered ? `0 0 8px ${skill.color}` : "none",
+                                transition: "all 0.2s",
+                            }}>
+                                {skill.label}
+                            </span>
+                        </Html>
                     </group>
                 );
             })}
