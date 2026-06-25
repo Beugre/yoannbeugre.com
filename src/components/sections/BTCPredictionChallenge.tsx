@@ -55,9 +55,9 @@ const REPLAY_N = 6;
 
 function fmt(n: number) { return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
 
-async function loadCandles(): Promise<Candle[]> {
+async function loadCandles(interval = "5m"): Promise<Candle[]> {
   try {
-    const r = await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=80", { cache: "no-store", signal: AbortSignal.timeout(4000) });
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&limit=80`, { cache: "no-store", signal: AbortSignal.timeout(4000) });
     if (!r.ok) throw new Error();
     const d: unknown[][] = await r.json();
     return d.map(k => ({ o: +String(k[1]), h: +String(k[2]), l: +String(k[3]), c: +String(k[4]), v: +String(k[5]) }));
@@ -105,7 +105,7 @@ function pickIdx(candles: Candle[], used: number[]): number {
   return pool.length ? pool[Math.floor(Math.random()*pool.length)] : SHOW+5;
 }
 
-function Chart({ candles, winIdx, replayN, showReplay }: { candles: Candle[]; winIdx: number; replayN: number; showReplay: boolean }) {
+function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Candle[]; winIdx: number; replayN: number; showReplay: boolean; animKey: number }) {
   const hist = candles.slice(Math.max(0,winIdx-SHOW), winIdx+1);
   const repl = showReplay ? candles.slice(winIdx+1, winIdx+1+Math.min(replayN, REPLAY_N)) : [];
   const all = [...hist, ...repl];
@@ -156,7 +156,28 @@ function Chart({ candles, winIdx, replayN, showReplay }: { candles: Candle[]; wi
       {all.length>1&&(
         <>
           <path d={linePts.trim()+` L${px(all.length-1)},${H-MB-VH} L${px(0)},${H-MB-VH} Z`} fill="url(#ag)"/>
-          <path d={linePts.trim()} fill="none" stroke="#f0b90b" strokeWidth="2.2" filter="url(#glw)" strokeLinecap="round" strokeLinejoin="round"/>
+          {/* Animated line draw — strokeDashoffset trick */}
+          <path
+            key={`line-${animKey}-${all.length}`}
+            d={linePts.trim()}
+            fill="none"
+            stroke="#f0b90b"
+            strokeWidth="2.2"
+            filter="url(#glw)"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeDasharray="1400"
+            strokeDashoffset="1400"
+          >
+            <animate
+              attributeName="strokeDashoffset"
+              from="1400" to="0"
+              dur={showReplay ? `${REPLAY_N * 0.4}s` : "0.9s"}
+              fill="freeze"
+              calcMode="spline"
+              keySplines="0.25 0.1 0.25 1"
+            />
+          </path>
           <circle cx={px(all.length-1)} cy={py(last.c)} r="4" fill="#f0b90b" filter="url(#glw)">
             <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
           </circle>
@@ -200,6 +221,8 @@ export default function BTCPredictionChallenge() {
   const [aiStep, setAiStep] = useState(0);
   const [hChoice, setHChoice] = useState<Choice|null>(null);
   const [loading, setLoading] = useState(false);
+  const [timeframe, setTimeframe] = useState("5m");
+  const [animKey, setAnimKey] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>|null>(null);
   const aiRef = useRef<ReturnType<typeof setInterval>|null>(null);
   const replayRef = useRef<ReturnType<typeof setInterval>|null>(null);
@@ -230,14 +253,25 @@ export default function BTCPredictionChallenge() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
-  const startGame = async () => {
+  const startGame = async (tf = timeframe) => {
     setLoading(true);
-    const candles = await loadCandles();
+    const candles = await loadCandles(tf);
     const wi = pickIdx(candles,[]);
     const {choice:aiChoice,conf:aiConf,lines:aiLines} = aiDecide(candles,wi);
     const nxt = candles[wi+1]; const pct = nxt?(nxt.c-candles[wi].c)/candles[wi].c:0;
     setGs({...INIT,candles,winIdx:wi,aiChoice,aiConf,aiLines,actual:pct>=0?"UP":"DOWN",actualPct:pct,targetPrice:candles[wi].c});
-    setHChoice(null); setReplayIdx(0); setAiStep(0); setLoading(false); setPhase("predict");
+    setHChoice(null); setReplayIdx(0); setAiStep(0); setAnimKey(k=>k+1); setLoading(false); setPhase("predict");
+  };
+
+  const changeTimeframe = async (tf: string) => {
+    setTimeframe(tf);
+    if (phase==="intro") return;
+    // Reload candles with new timeframe if already playing
+    setLoading(true);
+    const candles = await loadCandles(tf);
+    setGs(g => ({...g, candles}));
+    setAnimKey(k=>k+1);
+    setLoading(false);
   };
 
   const doPick = useCallback((ch: Choice) => {
@@ -294,9 +328,11 @@ export default function BTCPredictionChallenge() {
                 <div style={{fontSize:11,color:"rgba(255,255,255,0.35)",fontFamily:"monospace"}}>Binance · BTC/USDT · Live data</div>
               </div>
               <div style={{marginLeft:"auto",display:"flex",gap:6}}>
-                {["5 min","15 min","1 heure","1 jour"].map((t,i)=>(
-                  <button key={t} type="button" style={{cursor:"pointer",padding:"4px 10px",borderRadius:20,border:`1px solid ${i===0?"rgba(240,185,11,0.4)":"rgba(255,255,255,0.1)"}`,background:i===0?"rgba(240,185,11,0.1)":"transparent",color:i===0?"#f0b90b":"rgba(255,255,255,0.4)",fontSize:11,fontFamily:"monospace"}}>{t}</button>
-                ))}
+                {(["5m","15m","1h","1d"] as const).map((tf,i)=>{
+                  const labels=["5 min","15 min","1 heure","1 jour"];
+                  const active=timeframe===tf;
+                  return <button key={tf} type="button" onClick={()=>changeTimeframe(tf)} style={{cursor:"pointer",padding:"4px 10px",borderRadius:20,border:`1px solid ${active?"rgba(240,185,11,0.4)":"rgba(255,255,255,0.1)"}`,background:active?"rgba(240,185,11,0.1)":"transparent",color:active?"#f0b90b":"rgba(255,255,255,0.4)",fontSize:11,fontFamily:"monospace"}}>{labels[i]}</button>;
+                })}
               </div>
             </div>
             <div style={{padding:"20px"}}>
@@ -368,14 +404,16 @@ export default function BTCPredictionChallenge() {
 
             {/* Chart */}
             <div style={{padding:"6px 14px 2px",background:"rgba(6,6,10,0.7)"}}>
-              <Chart candles={gs.candles} winIdx={gs.winIdx} replayN={replayIdx} showReplay={phase==="replay"}/>
+              <Chart candles={gs.candles} winIdx={gs.winIdx} replayN={replayIdx} showReplay={phase==="replay"} animKey={animKey}/>
             </div>
 
             {/* Time tabs */}
             <div style={{display:"flex",gap:4,padding:"8px 16px",borderTop:"1px solid rgba(255,255,255,0.04)"}}>
-              {["5 min","15 min","1 heure","1 jour"].map((t,i)=>(
-                <button key={t} type="button" style={{cursor:"pointer",padding:"3px 10px",borderRadius:20,border:`1px solid ${i===0?"rgba(240,185,11,0.4)":"rgba(255,255,255,0.07)"}`,background:i===0?"rgba(240,185,11,0.1)":"transparent",color:i===0?"#f0b90b":"rgba(255,255,255,0.3)",fontSize:10,fontFamily:"monospace"}}>{t}</button>
-              ))}
+              {(["5m","15m","1h","1d"] as const).map((tf,i)=>{
+                const labels=["5 min","15 min","1 heure","1 jour"];
+                const active=timeframe===tf;
+                return <button key={tf} type="button" onClick={()=>changeTimeframe(tf)} style={{cursor:"pointer",padding:"3px 10px",borderRadius:20,border:`1px solid ${active?"rgba(240,185,11,0.4)":"rgba(255,255,255,0.07)"}`,background:active?"rgba(240,185,11,0.1)":"transparent",color:active?"#f0b90b":"rgba(255,255,255,0.3)",fontSize:10,fontFamily:"monospace"}}>{labels[i]}</button>;
+              })}
             </div>
 
             {/* UP/DOWN buttons */}
