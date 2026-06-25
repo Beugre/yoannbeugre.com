@@ -121,23 +121,32 @@ export default function TradeGame() {
         drawChart();
     }, [drawChart]);
 
-    // Redraw when phase becomes "playing" (canvas just mounted)
+    // Redraw quand la phase passe en playing — attend que le canvas soit monté
     useEffect(() => {
         if (phase !== "playing") return;
-        const id = requestAnimationFrame(() => {
-            // Sync canvas width with its CSS width
-            const canvas = canvasRef.current;
-            if (canvas) {
-                canvas.width = canvas.offsetWidth || 700;
-                canvas.height = canvas.offsetHeight || 200;
-            }
-            drawChart();
+        // Double rAF pour laisser React monter le canvas dans le DOM
+        let id1: number;
+        let id2: number;
+        id1 = requestAnimationFrame(() => {
+            id2 = requestAnimationFrame(() => {
+                const canvas = canvasRef.current;
+                if (canvas) {
+                    canvas.width = canvas.offsetWidth || 700;
+                    canvas.height = canvas.offsetHeight || 200;
+                }
+                drawChart();
+            });
         });
-        return () => cancelAnimationFrame(id);
-    }, [phase, drawChart]);
+        return () => {
+            cancelAnimationFrame(id1);
+            cancelAnimationFrame(id2);
+        };
+    }, [phase, cursor, drawChart]);
 
     const startGame = () => {
+        // Générer les données prix d'abord
         pricesRef.current = generatePriceData(HISTORY_VISIBLE + TOTAL_ROUNDS + 5);
+        // Reset tout en une seule batch de state — sans passer par cursor=0
         setRound(0);
         setPortfolio(10000);
         setAiPortfolio(10000);
@@ -145,12 +154,8 @@ export default function TradeGame() {
         setDecisions([]);
         setAiDecisions([]);
         setFeedback(null);
-        // Force cursor to 0 then back to HISTORY_VISIBLE to always trigger redraw
-        setCursor(0);
-        setTimeout(() => {
-            setCursor(HISTORY_VISIBLE);
-            setPhase("playing");
-        }, 0);
+        setCursor(HISTORY_VISIBLE);
+        setPhase("playing");
     };
 
     const makeDecision = (decision: Decision) => {
