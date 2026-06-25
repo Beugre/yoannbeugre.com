@@ -27,28 +27,25 @@ export default function TradeGame() {
 
     const [phase, setPhase] = useState<Phase>("intro");
     const [round, setRound] = useState(0);
-    const [cursor, setCursor] = useState(HISTORY);
+    const [cursor, setCursor] = useState(0); // 0 pour garantir le changement au premier setCursor(HISTORY)
     const [portfolio, setPortfolio] = useState(10000);
     const [aiPortfolio, setAiPortfolio] = useState(10000);
     const [position, setPosition] = useState<"none" | "long">("none");
     const [feedback, setFeedback] = useState<string | null>(null);
 
-    // Draw on every cursor change — canvas is ALWAYS in the DOM
+    // Dépend de [cursor, phase] — si cursor ne change pas (premier lancement), phase change quand même
     useEffect(() => {
+        if (phase !== "playing") return;
         const canvas = canvasRef.current;
         if (!canvas || pricesRef.current.length < 2) return;
         const prices = pricesRef.current;
         const slice = prices.slice(Math.max(0, cursor - HISTORY), cursor + 1);
         if (slice.length < 2) return;
 
-        // Sync canvas pixel size with CSS size each time
-        const rect = canvas.getBoundingClientRect();
-        if (rect.width > 0) {
-            canvas.width = rect.width;
-            canvas.height = rect.height || 200;
-        }
-
-        const W = canvas.width, H = canvas.height;
+        // Dimensions fixes — jamais via getBoundingClientRect (peut retourner 0 si display:none au rendu précédent)
+        canvas.width = 800;
+        canvas.height = 200;
+        const W = 800, H = 200;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
@@ -86,41 +83,14 @@ export default function TradeGame() {
         ctx.font = "11px monospace"; ctx.fillStyle = "rgba(255,255,255,0.5)";
         ctx.textAlign = "right";
         ctx.fillText(`$${slice[slice.length - 1].toFixed(2)}`, W - 6, 16);
-    }, [cursor]);
+    }, [cursor, phase]); // phase dans les deps = effet fire quand intro→playing même si cursor inchangé
 
     const startGame = () => {
         pricesRef.current = generatePrices(HISTORY + ROUNDS + 5);
         setRound(0); setPortfolio(10000); setAiPortfolio(10000);
         setPosition("none"); setFeedback(null);
-        // Set cursor first so useEffect fires after phase change
         setCursor(HISTORY);
         setPhase("playing");
-        // Fallback: force redraw after paint
-        setTimeout(() => {
-            const canvas = canvasRef.current;
-            if (!canvas || pricesRef.current.length < 2) return;
-            const prices = pricesRef.current;
-            const slice = prices.slice(Math.max(0, HISTORY - HISTORY), HISTORY + 1);
-            const rect = canvas.getBoundingClientRect();
-            if (rect.width > 0) { canvas.width = rect.width; canvas.height = rect.height || 200; }
-            const W = canvas.width, H = canvas.height;
-            const ctx = canvas.getContext("2d");
-            if (!ctx || slice.length < 2) return;
-            const min = Math.min(...slice) - 2, max = Math.max(...slice) + 2;
-            ctx.clearRect(0, 0, W, H);
-            const g = ctx.createLinearGradient(0, 0, W, 0);
-            g.addColorStop(0, "rgba(139,92,246,0.9)"); g.addColorStop(1, "rgba(0,212,255,0.9)");
-            ctx.beginPath();
-            slice.forEach((p, i) => {
-                const x = (i / (slice.length - 1)) * W, y = H - ((p - min) / (max - min)) * H;
-                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            });
-            ctx.strokeStyle = g; ctx.lineWidth = 2.5; ctx.stroke();
-            const lx = W, ly = H - ((slice[slice.length - 1] - min) / (max - min)) * H;
-            ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI * 2);
-            ctx.fillStyle = "#00d4ff"; ctx.shadowBlur = 12; ctx.shadowColor = "#00d4ff";
-            ctx.fill(); ctx.shadowBlur = 0;
-        }, 50);
     };
 
     const decide = (decision: Decision) => {
