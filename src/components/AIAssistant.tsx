@@ -109,7 +109,7 @@ export default function AIAssistant() {
                                         alt="Yoann"
                                         width={36}
                                         height={36}
-                                        className="rounded-full object-cover object-top border border-violet-400/30"
+                                        className="rounded-full object-cover border border-violet-400/30" style={{ objectPosition: "center 35%" }}
                                     />
                                     <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#030712]" />
                                 </div>
@@ -131,11 +131,10 @@ export default function AIAssistant() {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                     >
-                                        <div className={`max-w-[85%] px-3 py-2 rounded-xl text-sm leading-relaxed ${
-                                            msg.role === "user"
+                                        <div className={`max-w-[85%] px-3 py-2 rounded-xl text-sm leading-relaxed ${msg.role === "user"
                                                 ? "bg-violet-500/30 text-white/90 rounded-br-sm"
                                                 : "bg-white/5 border border-white/8 text-white/70 rounded-bl-sm"
-                                        }`}>
+                                            }`}>
                                             {msg.text}
                                         </div>
                                     </motion.div>
