@@ -132,8 +132,8 @@ export default function AIAssistant() {
                                         animate={{ opacity: 1, y: 0 }}
                                     >
                                         <div className={`max-w-[85%] px-3 py-2 rounded-xl text-sm leading-relaxed ${msg.role === "user"
-                                                ? "bg-violet-500/30 text-white/90 rounded-br-sm"
-                                                : "bg-white/5 border border-white/8 text-white/70 rounded-bl-sm"
+                                            ? "bg-violet-500/30 text-white/90 rounded-br-sm"
+                                            : "bg-white/5 border border-white/8 text-white/70 rounded-bl-sm"
                                             }`}>
                                             {msg.text}
                                         </div>
