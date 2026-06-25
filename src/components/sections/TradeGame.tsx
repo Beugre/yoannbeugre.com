@@ -81,8 +81,10 @@ export default function TradeGame() {
     const [aiPortfolio, setAiPortfolio] = useState(10000);
     const [position, setPosition] = useState<"none" | "long">("none");
     const [feedback, setFeedback] = useState<string | null>(null);
+    const [clickCount, setClickCount] = useState(0); // DEBUG
 
     const startGame = () => {
+        setClickCount(c => c + 1); // DEBUG — si ce nombre change, le clic est reçu
         const newPrices = generatePrices(HISTORY + ROUNDS + 5);
         setPrices(newPrices);
         setCursor(HISTORY);
@@ -149,8 +151,32 @@ export default function TradeGame() {
                             <p>🤖 Algo IA momentum joue en parallèle</p>
                             <p>📊 8 décisions : BUY / SELL / HOLD</p>
                         </div>
-                        <button onClick={startGame} style={{ cursor: "pointer" }}
-                            className="px-8 py-3 rounded-xl font-bold text-black bg-gradient-to-r from-yellow-400 to-orange-400 hover:opacity-90 transition-opacity">
+
+                        {/* DEBUG: compteur de clics */}
+                        {clickCount > 0 && (
+                            <div className="mb-4 text-emerald-400 font-mono text-sm">
+                                ✅ Clic reçu {clickCount} fois — phase: {phase}
+                            </div>
+                        )}
+
+                        {/* Bouton le plus simple possible — aucun style qui pourrait bloquer */}
+                        <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); startGame(); }}
+                            style={{
+                                cursor: "pointer",
+                                padding: "12px 32px",
+                                borderRadius: "12px",
+                                fontWeight: "bold",
+                                fontSize: "16px",
+                                color: "#000",
+                                background: "linear-gradient(to right, #facc15, #fb923c)",
+                                border: "none",
+                                display: "inline-block",
+                                zIndex: 9999,
+                                position: "relative",
+                            }}
+                        >
                             Commencer la partie →
                         </button>
                     </div>
