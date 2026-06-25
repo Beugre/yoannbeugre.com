@@ -7,6 +7,7 @@ import ProjectsSection from "@/components/sections/ProjectsSection";
 import BTCPredictionChallenge from "@/components/sections/BTCPredictionChallenge";
 import BuildTheBot from "@/components/sections/BuildTheBot";
 import DebugSystem from "@/components/sections/DebugSystem";
+import PredictionMarketLab from "@/components/sections/PredictionMarketLab";
 import ExperienceSection from "@/components/sections/ExperienceSection";
 import ArchitectureSection from "@/components/sections/ArchitectureSection";
 import TechStackSection from "@/components/sections/TechStackSection";
@@ -14,7 +15,6 @@ import GitHubSection from "@/components/sections/GitHubSection";
 import ContactSection from "@/components/sections/ContactSection";
 import BossSection from "@/components/sections/BossSection";
 import Footer from "@/components/Footer";
-
 import CustomCursor from "@/components/CustomCursor";
 import SmoothScroll from "@/components/SmoothScroll";
 import EasterEggTerminal from "@/components/EasterEggTerminal";
@@ -37,19 +37,16 @@ export default function Home() {
       <ProgressTracker />
       <EasterEggTerminal />
       <AIAssistant />
-
       <Navigation />
       <HeroSection />
       <AboutSection />
       <StatsSection />
       <ExpertiseSection />
       <ProjectsSection />
-
-      {/* Challenge Arena — 3 mini-jeux */}
       <BTCPredictionChallenge />
       <BuildTheBot />
+      <PredictionMarketLab />
       <DebugSystem />
-
       <ExperienceSection />
       <ArchitectureSection />
       <TechStackSection />
@@ -57,8 +54,7 @@ export default function Home() {
       <ContactSection />
       <BossSection />
       <Footer />
-
-      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,212,255,0.05) 0%, transparent 60%)" }} />
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%,rgba(0,212,255,0.05) 0%,transparent 60%)" }} />
     </main>
   );
 }
