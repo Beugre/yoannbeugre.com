@@ -159,29 +159,23 @@ function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Can
       })}
       {all.length>1&&(
         <>
-          <path d={linePts.trim()+` L${px(all.length-1)},${H-MB-VH} L${px(0)},${H-MB-VH} Z`} fill="url(#ag)"/>
-          {/* Animated line draw — strokeDashoffset trick */}
+          <path d={linePts+` L${px(all.length-1)},${H-MB-VH} L${px(0)},${H-MB-VH} Z`} fill="url(#ag)"/>
+          {/* CSS animation via style — pas de valeur fixe strokeDasharray */}
           <path
             key={`line-${animKey}-${all.length}`}
-            d={linePts.trim()}
+            d={linePts}
             fill="none"
             stroke="#f0b90b"
             strokeWidth="2.2"
             filter="url(#glw)"
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeDasharray="1400"
-            strokeDashoffset="1400"
-          >
-            <animate
-              attributeName="strokeDashoffset"
-              from="1400" to="0"
-              dur={showReplay ? `${REPLAY_N * 0.4}s` : "0.9s"}
-              fill="freeze"
-              calcMode="spline"
-              keySplines="0.25 0.1 0.25 1"
-            />
-          </path>
+            style={{
+              strokeDasharray: 9999,
+              strokeDashoffset: 9999,
+              animation: `drawBTCLine ${showReplay ? REPLAY_N * 0.38 : 0.85}s cubic-bezier(0.25,0.1,0.25,1) forwards`,
+            }}
+          />
           <circle cx={px(all.length-1)} cy={py(last.c)} r="4" fill="#f0b90b" filter="url(#glw)">
             <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
           </circle>
@@ -554,7 +548,7 @@ export default function BTCPredictionChallenge() {
           );
         })()}
       </div>
-      <style>{`@keyframes btcBlink{0%,100%{opacity:1}50%{opacity:0}}@keyframes btcPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.75)}}`}</style>
+      <style>{`@keyframes btcBlink{0%,100%{opacity:1}50%{opacity:0}}@keyframes btcPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.75)}}@keyframes drawBTCLine{to{stroke-dashoffset:0}}`}</style>
     </section>
   );
 }
