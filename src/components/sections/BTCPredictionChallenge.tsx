@@ -124,8 +124,12 @@ function Chart({ candles, winIdx, replayN, showReplay, animKey }: { candles: Can
   const nowX=px(SHOW);
   const up=last?last.c>=tgt:true;
   const ticks=[0.25,0.5,0.75].map(r=>lo+r*rng);
-  let linePts="";
-  all.forEach((c,i) => { linePts+=(i===0?"M":"L")+`${px(i)},${py(c.c)} `; });
+  // Smooth bezier curve (Polymarket style)
+  let linePts = `M${px(0)},${py(all[0].c)}`;
+  for (let i = 1; i < all.length; i++) {
+    const cpx = (px(i - 1) + px(i)) / 2;
+    linePts += ` C${cpx},${py(all[i-1].c)} ${cpx},${py(all[i].c)} ${px(i)},${py(all[i].c)}`;
+  }
 
   return (
     <svg viewBox={`0 0 ${W} ${H+VH}`} className="w-full" style={{height:180}} preserveAspectRatio="none">
