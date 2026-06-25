@@ -1,259 +1,258 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, useInView } from "framer-motion";
 
-interface Node {
-    id: string;
-    label: string;
-    x: number;
-    y: number;
-    color: string;
-    size: number;
-    category: string;
+interface SNode {
+  id: string; label: string; category: string;
+  x: number; y: number; color: string; size: number;
+  desc: string; usedIn: string; purpose: string; connected: string[];
 }
 
-interface Edge {
-    from: string;
-    to: string;
-    color: string;
-    animated?: boolean;
-}
+interface SEdge { from: string; to: string; animated?: boolean; }
 
-const NODES: Node[] = [
-    // Core
-    { id: "python", label: "Python", x: 50, y: 50, color: "#3b82f6", size: 14, category: "core" },
-    // Trading
-    { id: "binance", label: "Binance API", x: 20, y: 30, color: "#f59e0b", size: 11, category: "trading" },
-    { id: "bot", label: "Trading Bot", x: 15, y: 55, color: "#00d4ff", size: 13, category: "trading" },
-    { id: "websocket", label: "WebSocket", x: 25, y: 75, color: "#06b6d4", size: 10, category: "trading" },
-    { id: "telegram", label: "Telegram", x: 5, y: 42, color: "#3b82f6", size: 9, category: "notify" },
-    // Data
-    { id: "firebase", label: "Firebase", x: 35, y: 20, color: "#f97316", size: 10, category: "db" },
-    { id: "postgres", label: "PostgreSQL", x: 65, y: 20, color: "#64748b", size: 10, category: "db" },
-    { id: "oracle", label: "Oracle", x: 80, y: 30, color: "#ef4444", size: 10, category: "db" },
-    // AI
-    { id: "llm", label: "LLM", x: 75, y: 55, color: "#8b5cf6", size: 13, category: "ai" },
-    { id: "agents", label: "AI Agents", x: 85, y: 42, color: "#a78bfa", size: 11, category: "ai" },
-    { id: "ml", label: "ML Models", x: 90, y: 65, color: "#7c3aed", size: 10, category: "ai" },
-    // Polymarket
-    { id: "polymarket", label: "Polymarket", x: 55, y: 78, color: "#10b981", size: 12, category: "quant" },
-    { id: "dashboard", label: "Dashboard", x: 40, y: 85, color: "#6366f1", size: 9, category: "ui" },
-    { id: "streamlit", label: "Streamlit", x: 30, y: 92, color: "#f43f5e", size: 9, category: "ui" },
+const NODES: SNode[] = [
+  { id: "python",   label: "Python",       category: "core",    x: 50, y: 50, color: "#3b82f6", size: 16, desc: "Moteur principal de tous les systèmes", usedIn: "All projects", purpose: "Core language — trading bots, AI agents, data pipelines, automation", connected: ["binance","llm","polymarket","pg","docker","ws","telegram"] },
+  { id: "binance",  label: "Binance API",  category: "trading", x: 22, y: 28, color: "#f0b90b", size: 13, desc: "Source de données et exécution d'ordres", usedIn: "Quant Trading Engine", purpose: "Market data (klines, orderbook), order execution, account management", connected: ["python","ws","telegram","pg"] },
+  { id: "ws",       label: "WebSocket",    category: "trading", x: 8,  y: 45, color: "#06b6d4", size: 11, desc: "Flux de données temps réel", usedIn: "Trading Bot, Polymarket", purpose: "Real-time price feeds, order updates, live market data", connected: ["binance","python","polymarket"] },
+  { id: "telegram", label: "Telegram",     category: "notify",  x: 8,  y: 64, color: "#3b82f6", size: 11, desc: "Alertes et notifications instantanées", usedIn: "All bots", purpose: "Real-time alerts, trade notifications, system status", connected: ["python","binance"] },
+  { id: "polymarket",label:"Polymarket",   category: "trading", x: 26, y: 76, color: "#10b981", size: 13, desc: "Marchés prédictifs DeFi / Polygon", usedIn: "Polymarket Analyzer", purpose: "Prediction market data, position management, probability analysis", connected: ["python","ws","firebase"] },
+  { id: "llm",      label: "LLM Engine",   category: "ai",      x: 72, y: 30, color: "#8b5cf6", size: 14, desc: "Moteur d'intelligence artificielle", usedIn: "AI Agents, Portfolio AI", purpose: "Reasoning, automation, explanations, portfolio assistant (GPT-4o-mini)", connected: ["python","agents","openai"] },
+  { id: "openai",   label: "OpenAI API",   category: "ai",      x: 86, y: 20, color: "#a78bfa", size: 11, desc: "Provider LLM principal", usedIn: "AI Agents", purpose: "GPT-4o-mini — reasoning, text generation, function calling", connected: ["llm"] },
+  { id: "agents",   label: "AI Agents",    category: "ai",      x: 85, y: 42, color: "#7c3aed", size: 12, desc: "Agents autonomes multi-tools", usedIn: "AI Automation", purpose: "Autonomous task execution, tool use, multi-step reasoning, workflows", connected: ["llm","python"] },
+  { id: "firebase", label: "Firebase",     category: "db",      x: 40, y: 84, color: "#f97316", size: 11, desc: "Base de données temps réel NoSQL", usedIn: "Polymarket, Trading", purpose: "Real-time persistence, alerts history, portfolio snapshots", connected: ["python","polymarket","pg"] },
+  { id: "pg",       label: "PostgreSQL",   category: "db",      x: 60, y: 84, color: "#64748b", size: 12, desc: "Base relationnelle principale", usedIn: "All projects", purpose: "Trade history, performance metrics, backtesting data, reporting", connected: ["python","binance","firebase"] },
+  { id: "oracle",   label: "Oracle SQL",   category: "db",      x: 82, y: 72, color: "#ef4444", size: 11, desc: "Database enterprise — SQL avancé", usedIn: "SQL Performance Lab", purpose: "Enterprise ERP data, optimized stored procedures, ETL pipelines", connected: ["python"] },
+  { id: "docker",   label: "Docker",       category: "infra",   x: 72, y: 65, color: "#2496ed", size: 11, desc: "Containerisation des services", usedIn: "All deployments", purpose: "Containerization, reproducible environments, CI/CD, orchestration", connected: ["python"] },
+  { id: "stream",   label: "Streamlit",    category: "ui",      x: 20, y: 54, color: "#ff6b6b", size: 10, desc: "Dashboard monitoring trading", usedIn: "Trading Bot", purpose: "Real-time P&L dashboard, bot metrics, trade history visualization", connected: ["python","pg"] },
 ];
 
-const EDGES: Edge[] = [
-    { from: "python", to: "bot", color: "#00d4ff", animated: true },
-    { from: "python", to: "llm", color: "#8b5cf6", animated: true },
-    { from: "python", to: "polymarket", color: "#10b981", animated: true },
-    { from: "binance", to: "bot", color: "#f59e0b" },
-    { from: "bot", to: "websocket", color: "#06b6d4" },
-    { from: "bot", to: "telegram", color: "#3b82f6" },
-    { from: "bot", to: "firebase", color: "#f97316" },
-    { from: "python", to: "postgres", color: "#64748b" },
-    { from: "python", to: "oracle", color: "#ef4444" },
-    { from: "llm", to: "agents", color: "#a78bfa", animated: true },
-    { from: "llm", to: "ml", color: "#7c3aed" },
-    { from: "polymarket", to: "firebase", color: "#10b981" },
-    { from: "polymarket", to: "telegram", color: "#10b981" },
-    { from: "bot", to: "dashboard", color: "#6366f1" },
-    { from: "dashboard", to: "streamlit", color: "#f43f5e" },
+const EDGES: SEdge[] = [
+  { from: "python", to: "binance", animated: true },
+  { from: "python", to: "llm",     animated: true },
+  { from: "python", to: "polymarket", animated: true },
+  { from: "python", to: "pg"  }, { from: "python", to: "docker" },
+  { from: "python", to: "ws"  }, { from: "python", to: "telegram" },
+  { from: "python", to: "oracle" }, { from: "python", to: "stream" },
+  { from: "binance", to: "ws" }, { from: "binance", to: "telegram" }, { from: "binance", to: "pg" },
+  { from: "llm", to: "openai" }, { from: "llm", to: "agents", animated: true },
+  { from: "polymarket", to: "ws" }, { from: "polymarket", to: "firebase" },
+  { from: "pg", to: "firebase" },
+  { from: "stream", to: "pg" },
 ];
+
+const CAT_COLORS: Record<string, string> = {
+  core: "#3b82f6", trading: "#f0b90b", ai: "#8b5cf6", db: "#ef4444", infra: "#2496ed", notify: "#10b981", ui: "#ff6b6b"
+};
 
 export default function ArchitectureSection() {
-    const ref = useRef<HTMLDivElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const isInView = useInView(ref, { once: true, amount: 0.2 });
-    const animRef = useRef<number>(0);
-    const offsetRef = useRef(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.15 });
+  const [selected, setSelected] = useState<SNode | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const animRef = useRef<number>(0);
+  const t = useRef(0);
 
-    const drawGraph = useCallback(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const W = canvas.width, H = canvas.height;
+    t.current += 0.008;
+    ctx.clearRect(0, 0, W, H);
 
-        const W = canvas.width;
-        const H = canvas.height;
+    const nx = (pct: number) => (pct / 100) * W;
+    const ny = (pct: number) => (pct / 100) * H;
 
-        ctx.clearRect(0, 0, W, H);
-        offsetRef.current += 0.01;
+    const selId = selected?.id;
 
-        // Map percentages to canvas coords
-        const toX = (pct: number) => (pct / 100) * W;
-        const toY = (pct: number) => (pct / 100) * H;
+    EDGES.forEach((edge, ei) => {
+      const fn = NODES.find(n => n.id === edge.from);
+      const tn = NODES.find(n => n.id === edge.to);
+      if (!fn || !tn) return;
+      const x1 = nx(fn.x), y1 = ny(fn.y), x2 = nx(tn.x), y2 = ny(tn.y);
+      const isActive = !selId || fn.id === selId || tn.id === selId;
+      const alpha = isActive ? (edge.animated ? 0.6 : 0.25) : 0.04;
 
-        // Draw edges
-        EDGES.forEach((edge) => {
-            const fromNode = NODES.find((n) => n.id === edge.from);
-            const toNode = NODES.find((n) => n.id === edge.to);
-            if (!fromNode || !toNode) return;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+      ctx.strokeStyle = isActive ? `${fn.color}${Math.round(alpha * 255).toString(16).padStart(2, "0")}` : "rgba(255,255,255,0.04)";
+      ctx.lineWidth = isActive ? (edge.animated ? 1.5 : 0.8) : 0.4;
+      ctx.stroke();
 
-            const x1 = toX(fromNode.x);
-            const y1 = toY(fromNode.y);
-            const x2 = toX(toNode.x);
-            const y2 = toY(toNode.y);
+      if (edge.animated && isActive) {
+        const tPkt = ((t.current * 0.5 + ei * 0.3) % 1);
+        const px = x1 + (x2 - x1) * tPkt, py = y1 + (y2 - y1) * tPkt;
+        ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = fn.color; ctx.shadowBlur = 8; ctx.shadowColor = fn.color; ctx.fill(); ctx.shadowBlur = 0;
+      }
+    });
 
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
+    NODES.forEach(n => {
+      const x = nx(n.x), y = ny(n.y), s = n.size;
+      const isActive = !selId || n.id === selId || (selected?.connected ?? []).includes(n.id);
+      const isHov = n.id === hovered;
+      const alpha = isActive ? (isHov ? 1 : 0.85) : 0.12;
 
-            if (edge.animated) {
-                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-                gradient.addColorStop(0, `${edge.color}22`);
-                gradient.addColorStop(0.5, `${edge.color}88`);
-                gradient.addColorStop(1, `${edge.color}22`);
-                ctx.strokeStyle = gradient;
-                ctx.lineWidth = 1.5;
-            } else {
-                ctx.strokeStyle = `${edge.color}33`;
-                ctx.lineWidth = 1;
-            }
+      // Glow
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, s * 2.2);
+      grd.addColorStop(0, `${n.color}${Math.round(alpha * 0.28 * 255).toString(16).padStart(2, "0")}`);
+      grd.addColorStop(1, "transparent");
+      ctx.beginPath(); ctx.arc(x, y, s * 2.2, 0, Math.PI * 2); ctx.fillStyle = grd; ctx.fill();
 
-            ctx.stroke();
+      // Border
+      ctx.beginPath(); ctx.arc(x, y, s, 0, Math.PI * 2);
+      ctx.strokeStyle = `${n.color}${Math.round(alpha * 0.7 * 255).toString(16).padStart(2, "0")}`;
+      ctx.lineWidth = isHov ? 2.5 : 1.5; ctx.stroke();
 
-            // Animated dot along edge
-            if (edge.animated) {
-                const t = (offsetRef.current % 1 + 0.3 * EDGES.indexOf(edge)) % 1;
-                const px = x1 + (x2 - x1) * t;
-                const py = y1 + (y2 - y1) * t;
+      // Fill
+      ctx.beginPath(); ctx.arc(x, y, s * 0.65, 0, Math.PI * 2);
+      ctx.fillStyle = `${n.color}${Math.round(alpha * 0.35 * 255).toString(16).padStart(2, "0")}`;
+      ctx.fill();
 
-                ctx.beginPath();
-                ctx.arc(px, py, 2.5, 0, Math.PI * 2);
-                ctx.fillStyle = edge.color;
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = edge.color;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            }
-        });
+      // Label
+      ctx.font = `${isHov ? "bold " : ""}${Math.max(8, s * 0.72)}px monospace`;
+      ctx.fillStyle = `rgba(255,255,255,${isActive ? 0.82 : 0.12})`;
+      ctx.textAlign = "center"; ctx.fillText(n.label, x, y + s + 10);
+    });
 
-        // Draw nodes
-        NODES.forEach((node) => {
-            const x = toX(node.x);
-            const y = toY(node.y);
-            const s = node.size;
+    animRef.current = requestAnimationFrame(draw);
+  }, [selected, hovered]);
 
-            // Glow
-            ctx.beginPath();
-            ctx.arc(x, y, s * 2, 0, Math.PI * 2);
-            const glow = ctx.createRadialGradient(x, y, 0, x, y, s * 2);
-            glow.addColorStop(0, `${node.color}22`);
-            glow.addColorStop(1, "transparent");
-            ctx.fillStyle = glow;
-            ctx.fill();
+  useEffect(() => {
+    if (!isInView) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const resize = () => {
+      const p = canvas.parentElement;
+      if (p) { canvas.width = p.clientWidth; canvas.height = p.clientHeight; }
+    };
+    resize(); window.addEventListener("resize", resize);
+    draw();
+    return () => { window.removeEventListener("resize", resize); cancelAnimationFrame(animRef.current); };
+  }, [isInView, draw]);
 
-            // Border circle
-            ctx.beginPath();
-            ctx.arc(x, y, s, 0, Math.PI * 2);
-            ctx.strokeStyle = `${node.color}88`;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = ((e.clientX - rect.left) / rect.width) * 100;
+    const my = ((e.clientY - rect.top) / rect.height) * 100;
+    let found: string | null = null;
+    for (const n of NODES) {
+      const dx = mx - n.x, dy = my - n.y;
+      if (Math.sqrt(dx * dx + dy * dy) < n.size / 4) { found = n.id; break; }
+    }
+    setHovered(found);
+    canvas.style.cursor = found ? "pointer" : "default";
+  }, []);
 
-            // Inner fill
-            ctx.beginPath();
-            ctx.arc(x, y, s * 0.7, 0, Math.PI * 2);
-            ctx.fillStyle = `${node.color}33`;
-            ctx.fill();
+  const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = ((e.clientX - rect.left) / rect.width) * 100;
+    const my = ((e.clientY - rect.top) / rect.height) * 100;
+    for (const n of NODES) {
+      const dx = mx - n.x, dy = my - n.y;
+      if (Math.sqrt(dx * dx + dy * dy) < n.size / 4) {
+        setSelected(prev => prev?.id === n.id ? null : n); return;
+      }
+    }
+    setSelected(null);
+  }, []);
 
-            // Label
-            ctx.font = `bold ${Math.max(9, s * 0.75)}px 'JetBrains Mono', monospace`;
-            ctx.fillStyle = "rgba(255,255,255,0.7)";
-            ctx.textAlign = "center";
-            ctx.fillText(node.label, x, y + s + 12);
-        });
+  return (
+    <section id="architecture" className="relative py-32 px-6 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-950/5 to-transparent pointer-events-none" />
 
-        animRef.current = requestAnimationFrame(drawGraph);
-    }, []);
+      <div ref={ref} className="max-w-7xl mx-auto">
+        <motion.div className="mb-12" initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7 }}>
+          <div className="flex items-center gap-4 mb-3">
+            <div className="glow-line w-12" />
+            <span className="text-xs font-mono text-cyan-400 tracking-widest uppercase">05 / Live System Graph</span>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-black text-white/90">
+            L&apos;architecture vivante <span className="text-gradient-static">de mes systèmes</span>
+          </h2>
+          <p className="mt-2 text-white/35 text-sm font-mono">Cliquez sur un nœud pour voir sa description et ses connexions</p>
+        </motion.div>
 
-    useEffect(() => {
-        if (!isInView) return;
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const resize = () => {
-            const parent = canvas.parentElement;
-            if (!parent) return;
-            canvas.width = parent.clientWidth;
-            canvas.height = parent.clientHeight;
-        };
-        resize();
-        window.addEventListener("resize", resize);
-
-        drawGraph();
-
-        return () => {
-            window.removeEventListener("resize", resize);
-            cancelAnimationFrame(animRef.current);
-        };
-    }, [isInView, drawGraph]);
-
-    return (
-        <section id="architecture" className="relative py-32 px-6 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-950/5 to-transparent" />
-
-            <div ref={ref} className="max-w-7xl mx-auto">
-                {/* Header */}
-                <motion.div
-                    className="mb-16"
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.7 }}
-                >
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="glow-line w-16" />
-                        <span className="text-xs font-mono text-cyan-400 tracking-widest uppercase">
-                            05 / Architecture
-                        </span>
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-black text-white/90 leading-tight">
-                        Mes systèmes,{" "}
-                        <span className="text-gradient-static">en action</span>
-                    </h2>
-                    <p className="mt-4 text-white/40 max-w-2xl">
-                        Visualisation en temps réel des flux de données entre les composants
-                        de mes projets principaux.
-                    </p>
-                </motion.div>
-
-                {/* Canvas container */}
-                <motion.div
-                    className="relative glass rounded-2xl border border-white/8 overflow-hidden"
-                    style={{ height: "520px" }}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                    transition={{ duration: 0.7, delay: 0.2 }}
-                >
-                    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
-
-                    {/* Legend */}
-                    <div className="absolute top-4 right-4 glass rounded-xl p-3 border border-white/8 space-y-1.5">
-                        {[
-                            { color: "#f59e0b", label: "Trading" },
-                            { color: "#8b5cf6", label: "AI / LLM" },
-                            { color: "#10b981", label: "Prédiction" },
-                            { color: "#3b82f6", label: "Infrastructure" },
-                        ].map((item) => (
-                            <div key={item.label} className="flex items-center gap-2">
-                                <div
-                                    className="w-2 h-2 rounded-full"
-                                    style={{ backgroundColor: item.color }}
-                                />
-                                <span className="text-[10px] font-mono text-white/40">
-                                    {item.label}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Title overlay */}
-                    <div className="absolute top-4 left-4">
-                        <span className="text-xs font-mono text-white/20">
-                            live • system architecture
-                        </span>
-                    </div>
-                </motion.div>
+        <div className="grid lg:grid-cols-4 gap-6">
+          {/* Canvas */}
+          <motion.div className="lg:col-span-3 glass rounded-2xl border border-white/8 overflow-hidden relative"
+            style={{ height: 520 }}
+            initial={{ opacity: 0, scale: 0.95 }} animate={isInView ? { opacity: 1, scale: 1 } : {}} transition={{ delay: 0.2 }}>
+            <canvas ref={canvasRef} className="absolute inset-0 w-full h-full"
+              onMouseMove={handleMouseMove} onMouseLeave={() => setHovered(null)} onClick={handleClick} />
+            <div className="absolute top-3 left-3 text-[10px] font-mono text-white/20 pointer-events-none">
+              SYSTEM.GRAPH · {NODES.length} services · {EDGES.length} connections · live
             </div>
-        </section>
-    );
+          </motion.div>
+
+          {/* Info panel */}
+          <motion.div className="space-y-4" initial={{ opacity: 0, x: 20 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ delay: 0.4 }}>
+            {/* Selected node info */}
+            {selected ? (
+              <div className="glass rounded-xl p-4 border border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-3 h-3 rounded-full" style={{ background: selected.color }} />
+                  <span className="font-bold text-white/90">{selected.label}</span>
+                  <button type="button" onClick={() => setSelected(null)} className="ml-auto text-white/30 hover:text-white/70 text-xs font-mono" style={{ cursor: "pointer" }}>✕</button>
+                </div>
+                <div className="text-xs font-mono px-2 py-0.5 rounded inline-block mb-3" style={{ background: `${CAT_COLORS[selected.category]}18`, color: CAT_COLORS[selected.category] }}>
+                  {selected.category.toUpperCase()}
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div><span className="text-white/30 font-mono">Used in:</span><br /><span className="text-white/65">{selected.usedIn}</span></div>
+                  <div><span className="text-white/30 font-mono">Purpose:</span><br /><span className="text-white/55 leading-relaxed">{selected.purpose}</span></div>
+                  <div>
+                    <span className="text-white/30 font-mono">Connected to:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {selected.connected.map(cid => {
+                        const cn = NODES.find(n => n.id === cid);
+                        return cn ? (
+                          <button key={cid} type="button" onClick={() => setSelected(cn)} style={{ cursor: "pointer", background: `${cn.color}15`, color: cn.color, border: `1px solid ${cn.color}30` }}
+                            className="text-[10px] px-2 py-0.5 rounded font-mono hover:scale-105 transition-transform">
+                            {cn.label}
+                          </button>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="glass rounded-xl p-4 border border-white/8 text-center">
+                <div className="text-2xl mb-2">🔍</div>
+                <div className="text-xs font-mono text-white/30">Cliquez sur un nœud pour voir ses détails</div>
+              </div>
+            )}
+
+            {/* Legend */}
+            <div className="glass rounded-xl p-4 border border-white/8">
+              <div className="text-xs font-mono text-white/30 mb-3 uppercase tracking-widest">Catégories</div>
+              <div className="space-y-2">
+                {Object.entries(CAT_COLORS).map(([cat, color]) => (
+                  <div key={cat} className="flex items-center gap-2 text-xs font-mono">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+                    <span className="text-white/45 capitalize">{cat}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Animated dots key */}
+            <div className="glass rounded-xl p-3 border border-white/8">
+              <div className="flex items-center gap-2 text-xs font-mono text-white/30">
+                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                Paquets animés = flux de données actifs
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
 }
