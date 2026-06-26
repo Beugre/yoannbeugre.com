@@ -256,7 +256,6 @@ export default function WorldTravelsSection() {
                 <GlobeScene geoData={geoData} onHover={handleHover} />
               </Suspense>
             </Canvas>
-            </div>
           </div>
 
           <div className="absolute bottom-4 left-4 flex items-center gap-4 text-[10px] font-mono z-10">
