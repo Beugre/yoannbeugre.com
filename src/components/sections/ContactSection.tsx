@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { Send, GitBranch, ExternalLink, Mail, FileText, CheckCircle, AlertCircle } from "lucide-react";
+import { useLang } from "@/context/LanguageContext";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -11,6 +12,7 @@ export default function ContactSection() {
   const isInView = useInView(ref, { once: true, amount: 0.1 });
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState<Status>("idle");
+  const { t } = useLang();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +26,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="relative py-32 px-6 overflow-hidden">
+    <section id="contact" className="relative py-16 md:py-32 px-4 md:px-6 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-950/5 to-transparent pointer-events-none" />
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -42,7 +44,7 @@ export default function ContactSection() {
           <div className="inline-block px-4 py-1.5 rounded-full border border-cyan-400/20 bg-cyan-400/5 font-mono text-xs text-cyan-400/70 mb-4">
             MISSION COMPLETE — Système exploré
           </div>
-          <h2 className="text-4xl md:text-6xl font-black text-white/90 leading-tight mb-3">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white/90 leading-tight mb-3">
             Initiez le <span className="text-gradient-static">contact</span>
           </h2>
           <p className="text-white/40 max-w-xl mx-auto">
@@ -58,17 +60,17 @@ export default function ContactSection() {
             <div className="glass rounded-2xl p-5 border border-emerald-400/20">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-emerald-400 text-sm font-semibold">Disponible</span>
+                <span className="text-emerald-400 text-sm font-semibold">{t.contact.available}</span>
               </div>
-              <p className="text-white/50 text-sm">Ouvert aux opportunités — remote ou hybride Bordeaux / France. Domaines cibles : SWE + AI + Data + Quant.</p>
+              <p className="text-white/50 text-sm">{t.contact.availableDesc}</p>
             </div>
 
             {/* Links */}
             <div className="space-y-3">
               {[
-                { Icon: GitBranch, label: "GitHub", value: "github.com/Beugre", href: "https://github.com/Beugre", color: "text-white/70" },
-                { Icon: ExternalLink, label: "LinkedIn", value: "Yoann Beugré", href: "https://www.linkedin.com/in/yoann-beugré-236b20153/", color: "text-blue-400" },
-                { Icon: Mail, label: "Email", value: "yoann.beugre1@gmail.com", href: "mailto:yoann.beugre1@gmail.com", color: "text-cyan-400" },
+                { Icon: GitBranch, label: t.contact.github, value: "github.com/Beugre", href: "https://github.com/Beugre", color: "text-white/70" },
+                { Icon: ExternalLink, label: t.contact.linkedin, value: "Yoann Beugré", href: "https://www.linkedin.com/in/yoann-beugré-236b20153/", color: "text-blue-400" },
+                { Icon: Mail, label: t.contact.email, value: "yoann.beugre1@gmail.com", href: "mailto:yoann.beugre1@gmail.com", color: "text-cyan-400" },
               ].map(({ Icon, label, value, href, color }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-4 glass rounded-xl p-4 border border-white/5 hover:border-white/15 transition-all group">
@@ -86,7 +88,7 @@ export default function ContactSection() {
               className="flex items-center justify-center gap-3 w-full py-4 rounded-xl border border-violet-400/30 text-violet-300 hover:bg-violet-400/10 transition-all font-medium text-sm group"
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <FileText size={18} />
-              Télécharger le CV
+              {t.contact.cvBtn}
               <motion.span animate={{ y: [0, 2, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>↓</motion.span>
             </motion.a>
 
@@ -104,25 +106,27 @@ export default function ContactSection() {
             <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 border border-white/8 space-y-5">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="text-xs font-mono text-cyan-400/70 tracking-widest uppercase">Mission Briefing</span>
+                <span className="text-xs font-mono text-cyan-400/70 tracking-widest uppercase">{t.contact.briefing}</span>
               </div>
-              <div className="grid sm:grid-cols-2 gap-5">
-                {[["name", "Nom", "text", "John Doe"], ["email", "Email", "email", "john@company.com"]].map(([k, l, t, p]) => (
-                  <div key={k}>
-                    <label className="block text-xs font-mono text-white/40 mb-2 uppercase tracking-wider">{l}</label>
-                    <input type={t} name={k} value={form[k as keyof typeof form]} onChange={e => setForm(prev => ({ ...prev, [k]: e.target.value }))} required placeholder={p}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-cyan-400/40 focus:bg-white/8 transition-all" />
-                  </div>
-                ))}
-              </div>
+              {[[["name", t.contact.name, "text", t.contact.namePlaceholder], ["email", t.contact.emailField, "email", t.contact.emailPlaceholder]]].map((row, ri) => (
+                <div key={ri} className="grid sm:grid-cols-2 gap-5">
+                  {row.map(([k, l, tp, p]) => (
+                    <div key={k}>
+                      <label className="block text-xs font-mono text-white/40 mb-2 uppercase tracking-wider">{l}</label>
+                      <input type={tp} name={k} value={form[k as keyof typeof form]} onChange={e => setForm(prev => ({ ...prev, [k]: e.target.value }))} required placeholder={p}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-cyan-400/40 focus:bg-white/8 transition-all" />
+                    </div>
+                  ))}
+                </div>
+              ))}
               <div>
-                <label className="block text-xs font-mono text-white/40 mb-2 uppercase tracking-wider">Sujet</label>
-                <input type="text" name="subject" value={form.subject} onChange={e => setForm(prev => ({ ...prev, subject: e.target.value }))} required placeholder="Mission, collaboration, opportunité..."
+                <label className="block text-xs font-mono text-white/40 mb-2 uppercase tracking-wider">{t.contact.subject}</label>
+                <input type="text" name="subject" value={form.subject} onChange={e => setForm(prev => ({ ...prev, subject: e.target.value }))} required placeholder={t.contact.subjectPlaceholder}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-cyan-400/40 transition-all" />
               </div>
               <div>
-                <label className="block text-xs font-mono text-white/40 mb-2 uppercase tracking-wider">Message</label>
-                <textarea name="message" value={form.message} onChange={e => setForm(prev => ({ ...prev, message: e.target.value }))} required rows={5} placeholder="Décrivez votre mission ou opportunité..."
+                <label className="block text-xs font-mono text-white/40 mb-2 uppercase tracking-wider">{t.contact.message}</label>
+                <textarea name="message" value={form.message} onChange={e => setForm(prev => ({ ...prev, message: e.target.value }))} required rows={5} placeholder={t.contact.messagePlaceholder}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-cyan-400/40 transition-all resize-none" />
               </div>
               <motion.button type="submit" disabled={status === "loading"} className="w-full py-4 rounded-xl font-semibold text-sm relative overflow-hidden group disabled:opacity-60"
@@ -130,10 +134,10 @@ export default function ContactSection() {
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-violet-500" />
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-violet-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <span className="relative flex items-center justify-center gap-2 text-black font-bold">
-                  {status === "loading" ? <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />Envoi...</>
-                    : status === "success" ? <><CheckCircle size={16} />Message envoyé !</>
-                      : status === "error" ? <><AlertCircle size={16} />Erreur — réessayez</>
-                        : <><Send size={16} />INITIATE CONTACT</>}
+                  {status === "loading" ? <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />{t.contact.sending}</>
+                    : status === "success" ? <><CheckCircle size={16} />{t.contact.success}</>
+                      : status === "error" ? <><AlertCircle size={16} />{t.contact.error}</>
+                        : <><Send size={16} />{t.contact.send}</>}
                 </span>
               </motion.button>
             </form>

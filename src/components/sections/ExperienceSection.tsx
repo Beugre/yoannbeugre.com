@@ -140,7 +140,7 @@ export default function ExperienceSection() {
     const isInView = useInView(ref, { once: true, amount: 0.1 });
 
     return (
-        <section id="experience" className="relative py-32 px-6 overflow-hidden">
+        <section id="experience" className="relative py-16 md:py-32 px-4 md:px-6 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/5 to-transparent pointer-events-none" />
 
             <div ref={ref} className="max-w-7xl mx-auto">
@@ -157,7 +157,7 @@ export default function ExperienceSection() {
                             04 / Experience
                         </span>
                     </div>
-                    <h2 className="text-4xl md:text-6xl font-black text-white/90 leading-tight">
+                    <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white/90 leading-tight">
                         Une évolution{" "}
                         <span className="text-gradient-static">logique</span>
                     </h2>

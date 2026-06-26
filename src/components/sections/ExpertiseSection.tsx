@@ -104,7 +104,7 @@ export default function ExpertiseSection() {
   const hoveredNode = NODES.find(n => n.id === hovered);
 
   return (
-    <section id="expertise" className="relative py-32 px-6 overflow-hidden">
+    <section id="expertise" className="relative py-16 md:py-32 px-4 md:px-6 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-950/5 to-transparent pointer-events-none" />
 
       <div ref={ref} className="max-w-7xl mx-auto">
@@ -114,7 +114,7 @@ export default function ExpertiseSection() {
             <div className="glow-line w-12" />
             <span className="text-xs font-mono text-cyan-400 tracking-widest uppercase">02 / Skill Matrix</span>
           </div>
-          <h2 className="text-4xl md:text-6xl font-black text-white/90 mb-3">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white/90 mb-3">
             Les compétences ne sont pas<br />
             <span className="text-gradient-static">isolées. Elles forment un système.</span>
           </h2>

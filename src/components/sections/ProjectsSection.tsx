@@ -300,7 +300,7 @@ export default function ProjectsSection() {
     };
 
     return (
-        <section id="projects" className="relative py-32 px-6 overflow-hidden">
+        <section id="projects" className="relative py-16 md:py-32 px-4 md:px-6 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/5 to-transparent pointer-events-none" />
 
             <div ref={ref} className="max-w-7xl mx-auto">
@@ -309,7 +309,7 @@ export default function ProjectsSection() {
                         <div className="glow-line w-12" />
                         <span className="text-xs font-mono text-cyan-400 tracking-widest uppercase">03 / Research Lab</span>
                     </div>
-                    <h2 className="text-4xl md:text-6xl font-black text-white/90 leading-tight">
+                    <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white/90 leading-tight">
                         Systems I designed to<br />
                         <span className="text-gradient-static">think, decide and execute.</span>
                     </h2>

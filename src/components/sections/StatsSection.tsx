@@ -51,7 +51,7 @@ export default function StatsSection() {
     const isInView = useInView(ref, { once: true, amount: 0.2 });
 
     return (
-        <section id="stats" className="relative py-24 px-6 overflow-hidden">
+        <section id="stats" className="relative py-12 md:py-24 px-4 md:px-6 overflow-hidden">
             {/* Background */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-950/10 to-transparent pointer-events-none" />
 

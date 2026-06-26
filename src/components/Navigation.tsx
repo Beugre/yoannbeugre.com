@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Menu, X, Search } from "lucide-react";
+import { useLang } from "@/context/LanguageContext";
 
 const NAV_LINKS = [
     { label: "Core", id: "about", system: "Memory Core" },
@@ -37,6 +38,7 @@ export default function Navigation() {
     const [active, setActive] = useState("");
     const [palette, setPalette] = useState(false);
     const [query, setQuery] = useState("");
+    const { lang, setLang } = useLang();
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -89,7 +91,6 @@ export default function Navigation() {
                             <button key={link.id} type="button" onClick={() => scrollTo(link.id)} style={{ cursor: "pointer" }}
                                 className={`relative px-3 py-2 text-xs rounded-lg transition-all font-mono group ${active === link.id ? "text-cyan-400 bg-cyan-400/8" : "text-white/40 hover:text-white/80 hover:bg-white/4"}`}>
                                 {link.label}
-                                {/* Tooltip */}
                                 <span className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 px-2 py-0.5 bg-black/80 border border-white/10 rounded text-[9px] font-mono text-white/50 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                     {link.system}
                                 </span>
@@ -99,6 +100,16 @@ export default function Navigation() {
 
                     {/* Right actions */}
                     <div className="flex items-center gap-2">
+                        {/* FR/EN toggle */}
+                        <button
+                            type="button"
+                            onClick={() => setLang(lang === "fr" ? "en" : "fr")}
+                            style={{ cursor: "pointer" }}
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-white/25 transition-all text-[11px] font-mono font-bold"
+                            title={lang === "fr" ? "Switch to English" : "Passer en français"}
+                        >
+                            {lang === "fr" ? "EN" : "FR"}
+                        </button>
                         {/* Command Palette trigger */}
                         <button type="button" onClick={() => setPalette(true)} style={{ cursor: "pointer" }}
                             className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/30 hover:text-white/70 hover:border-white/20 transition-all text-xs font-mono">

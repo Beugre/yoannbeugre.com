@@ -17,6 +17,7 @@ import GitHubSection from "@/components/sections/GitHubSection";
 import ContactSection from "@/components/sections/ContactSection";
 import BossSection from "@/components/sections/BossSection";
 import Footer from "@/components/Footer";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 import CustomCursor from "@/components/CustomCursor";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -34,44 +35,46 @@ import StarBackground from "@/components/StarBackground";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-[#030712] overflow-x-hidden">
-      <BootScreen />
-      <StarBackground />
-      <CustomCursor />
-      <SmoothScroll />
-      <MatrixRain />
-      <EasterEggs />
-      <AchievementsSystem />
-      <ProgressTracker />
-      <EasterEggTerminal />
-      <AIAssistant />
-      <GSAPReveal />
-      <BloombergTicker />
+    <LanguageProvider>
+      <main className="relative min-h-screen bg-[#030712] overflow-x-hidden">
+        <BootScreen />
+        <StarBackground />
+        <CustomCursor />
+        <SmoothScroll />
+        <MatrixRain />
+        <EasterEggs />
+        <AchievementsSystem />
+        <ProgressTracker />
+        <EasterEggTerminal />
+        <AIAssistant />
+        <GSAPReveal />
+        <BloombergTicker />
 
-      {/* Content — pt-10 for ticker bar */}
-      <div className="pt-10">
-        <Navigation />
-        <HeroSection />
-        <LivePnLSection />
-        <AboutSection />
-        <StatsSection />
-        <ConstellationSection />
-        <ExpertiseSection />
-        <ProjectsSection />
-        <BTCPredictionChallenge />
-        <BuildTheBot />
-        <PredictionMarketLab />
-        <DebugSystem />
-        <ExperienceSection />
-        <ArchitectureSection />
-        <TechStackSection />
-        <GitHubSection />
-        <ContactSection />
-        <BossSection />
-        <Footer />
-      </div>
+        {/* Content — pt-10 for ticker bar */}
+        <div className="pt-10">
+          <Navigation />
+          <HeroSection />
+          <LivePnLSection />
+          <AboutSection />
+          <StatsSection />
+          <ConstellationSection />
+          <ExpertiseSection />
+          <ProjectsSection />
+          <BTCPredictionChallenge />
+          <BuildTheBot />
+          <PredictionMarketLab />
+          <DebugSystem />
+          <ExperienceSection />
+          <ArchitectureSection />
+          <TechStackSection />
+          <GitHubSection />
+          <ContactSection />
+          <BossSection />
+          <Footer />
+        </div>
 
-      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%,rgba(0,212,255,0.05) 0%,transparent 60%)" }} />
-    </main>
+        <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%,rgba(0,212,255,0.05) 0%,transparent 60%)" }} />
+      </main>
+    </LanguageProvider>
   );
 }

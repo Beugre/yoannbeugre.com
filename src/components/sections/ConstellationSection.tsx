@@ -130,7 +130,7 @@ export default function ConstellationSection() {
         : [];
 
     return (
-        <section id="constellation" className="relative py-24 px-6 overflow-hidden">
+        <section id="constellation" className="relative py-12 md:py-24 px-4 md:px-6 overflow-hidden">
             <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(139,92,246,0.04), transparent)" }} />
 
             <div className="max-w-7xl mx-auto">

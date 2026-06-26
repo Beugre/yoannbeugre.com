@@ -44,7 +44,7 @@ export default function PredictionMarketLab() {
   const S = (o: React.CSSProperties) => o;
 
   return (
-    <section id="prediction-lab" className="relative py-24 px-6">
+    <section id="prediction-lab" className="relative py-12 md:py-24 px-4 md:px-6">
       <div style={S({ position: "absolute", inset: 0, background: "radial-gradient(ellipse 60% 50% at 50% 100%,rgba(0,212,255,0.04),transparent)", pointerEvents: "none" })} />
       <div style={S({ maxWidth: 700, margin: "0 auto", position: "relative", zIndex: 1 })}>
 

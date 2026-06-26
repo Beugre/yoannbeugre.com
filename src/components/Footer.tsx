@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion";
 import { GitBranch, ExternalLink, Mail, ArrowUp } from "lucide-react";
+import { useLang } from "@/context/LanguageContext";
 
 export default function Footer() {
+    const { t } = useLang();
     return (
         <footer className="relative border-t border-white/5 py-12 px-6">
             <div className="max-w-7xl mx-auto">

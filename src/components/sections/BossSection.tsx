@@ -54,7 +54,7 @@ export default function BossSection() {
     };
 
     return (
-        <section id="boss" className="relative py-32 px-6 overflow-hidden">
+        <section id="boss" className="relative py-16 md:py-32 px-4 md:px-6 overflow-hidden">
             {/* Deep background */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0015] to-[#030712] pointer-events-none" />
 
@@ -87,7 +87,7 @@ export default function BossSection() {
 
                 {/* Main heading */}
                 <motion.h2
-                    className="text-5xl md:text-7xl font-black leading-none mb-6"
+                    className="text-3xl md:text-5xl lg:text-7xl font-black leading-none mb-6"
                     initial={{ opacity: 0, y: 40 }}
                     animate={isInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.8, delay: 0.3 }}
