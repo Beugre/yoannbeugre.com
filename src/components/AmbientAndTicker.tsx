@@ -2,71 +2,86 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Generative ambient trading sound with Web Audio API
+// Gymnopedie No.1 — Erik Satie (1888) — domaine public absolu
+// Notes en Hz, durée en secondes
+const GYMNOPEDIE: [number, number][] = [
+  // Mélodie principale (simplifiée, mesures 1-8)
+  [329.63,1.5],[293.66,0.75],[261.63,0.75], // E4 D4 C4
+  [293.66,1.5],[261.63,0.75],[246.94,0.75], // D4 C4 B3
+  [261.63,1.5],[246.94,0.75],[220.00,0.75], // C4 B3 A3
+  [246.94,1.5],[220.00,0.75],[196.00,0.75], // B3 A3 G3
+  [220.00,1.5],[196.00,0.75],[174.61,0.75], // A3 G3 F3
+  [196.00,2.0],[0,1.0],                     // G3 rest
+  [261.63,1.5],[293.66,0.75],[329.63,0.75], // C4 D4 E4
+  [293.66,1.5],[329.63,0.75],[349.23,0.75], // D4 E4 F4
+  [329.63,2.5],[0,1.5],                     // E4 rest
+];
+
+// Accompagnement basse (waltz 3/4)
+const BASS: [number,number][] = [
+  [65.41,0.5],[0,2.5], // C2
+  [73.42,0.5],[0,2.5], // D2
+  [65.41,0.5],[0,2.5],
+  [73.42,0.5],[0,2.5],
+  [55.00,0.5],[0,2.5], // A1
+  [65.41,0.5],[0,2.5],
+  [65.41,0.5],[0,2.5],
+  [73.42,0.5],[0,2.5],
+];
+
 class AmbientEngine {
     private ctx: AudioContext | null = null;
-    private nodes: AudioNode[] = [];
     private running = false;
+    private noteIdx = 0;
+    private bassIdx = 0;
+
+    private playNote(freq: number, dur: number, vol: number, type: OscillatorType = "sine") {
+        const ctx = this.ctx!;
+        if (freq === 0) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        // Soft reverb via convolver-like approach with delay
+        const delay = ctx.createDelay(0.4);
+        delay.delayTime.value = 0.25;
+        const delayGain = ctx.createGain();
+        delayGain.gain.value = 0.18;
+        osc.connect(gain); gain.connect(ctx.destination);
+        gain.connect(delay); delay.connect(delayGain); delayGain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = type;
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.04);
+        gain.gain.setValueAtTime(vol, ctx.currentTime + dur * 0.7);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + dur);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + dur + 0.1);
+    }
+
+    private scheduleNext() {
+        if (!this.running || !this.ctx) return;
+        const [freq, dur] = GYMNOPEDIE[this.noteIdx % GYMNOPEDIE.length];
+        const [bassFreq, bassDur] = BASS[this.bassIdx % BASS.length];
+        this.playNote(freq, dur, 0.06, "sine");
+        this.playNote(bassFreq, bassDur, 0.04, "sine");
+        this.noteIdx++;
+        this.bassIdx++;
+        setTimeout(() => this.scheduleNext(), dur * 1000);
+    }
 
     start() {
         if (this.running) return;
         try {
             this.ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
             this.running = true;
-            this.playLoop();
+            this.noteIdx = 0; this.bassIdx = 0;
+            this.scheduleNext();
         } catch { /* noop */ }
-    }
-
-    private playLoop() {
-        if (!this.running || !this.ctx) return;
-        const ctx = this.ctx;
-
-        // Low drone
-        const drone = ctx.createOscillator();
-        const droneGain = ctx.createGain();
-        drone.connect(droneGain); droneGain.connect(ctx.destination);
-        drone.frequency.value = 55 + Math.random() * 10;
-        drone.type = "sine";
-        droneGain.gain.setValueAtTime(0, ctx.currentTime);
-        droneGain.gain.linearRampToValueAtTime(0.025, ctx.currentTime + 2);
-        droneGain.gain.linearRampToValueAtTime(0.015, ctx.currentTime + 6);
-        droneGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 8);
-        drone.start(ctx.currentTime);
-        drone.stop(ctx.currentTime + 8);
-
-        // Soft tick every 2s (like a clock)
-        const tick = ctx.createOscillator();
-        const tickGain = ctx.createGain();
-        tick.connect(tickGain); tickGain.connect(ctx.destination);
-        tick.frequency.value = 1200;
-        tick.type = "square";
-        tickGain.gain.setValueAtTime(0.01, ctx.currentTime + 0.5);
-        tickGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.55);
-        tick.start(ctx.currentTime + 0.5);
-        tick.stop(ctx.currentTime + 0.56);
-
-        // High shimmer
-        const shimmer = ctx.createOscillator();
-        const shimmerGain = ctx.createGain();
-        shimmer.connect(shimmerGain); shimmerGain.connect(ctx.destination);
-        shimmer.frequency.value = 440 + Math.random() * 220;
-        shimmer.type = "sine";
-        shimmerGain.gain.setValueAtTime(0, ctx.currentTime + 3);
-        shimmerGain.gain.linearRampToValueAtTime(0.008, ctx.currentTime + 3.5);
-        shimmerGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 5);
-        shimmer.start(ctx.currentTime + 3);
-        shimmer.stop(ctx.currentTime + 5);
-
-        if (this.running) {
-            setTimeout(() => this.playLoop(), 6000 + Math.random() * 3000);
-        }
     }
 
     stop() {
         this.running = false;
         this.ctx?.close();
         this.ctx = null;
-        this.nodes = [];
     }
 }
 
@@ -84,8 +99,8 @@ export function AmbientSoundToggle() {
         <button
             type="button"
             onClick={toggle}
-            title={on ? "Couper le son ambiant" : "Activer le son ambiant"}
-            className="fixed bottom-24 right-4 z-[120] w-9 h-9 glass border border-white/10 rounded-xl flex items-center justify-center transition-all hover:border-white/25"
+            title={on ? "Couper la musique (Gymnopedie — Satie)" : "Activer la musique (Gymnopedie — Satie)"}
+            className="fixed bottom-[52px] right-4 z-[120] w-9 h-9 glass border border-white/10 rounded-xl flex items-center justify-center transition-all hover:border-white/25"
             style={{ cursor: "pointer", color: on ? "#00d4ff" : "rgba(255,255,255,0.3)" }}
         >
             {on ? "🔊" : "🔇"}

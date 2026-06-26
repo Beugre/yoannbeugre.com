@@ -70,7 +70,7 @@ export default function AchievementsSystem() {
 
             {/* Trophy panel button */}
             <motion.button
-                className="fixed bottom-20 right-4 z-[120] w-10 h-10 glass border border-white/10 rounded-xl flex items-center justify-center text-white/40 hover:text-yellow-400 hover:border-yellow-400/30 transition-all"
+                className="fixed bottom-6 right-4 z-[120] w-10 h-10 glass border border-white/10 rounded-xl flex items-center justify-center text-white/40 hover:text-yellow-400 hover:border-yellow-400/30 transition-all"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setPanelOpen(true)}

@@ -309,17 +309,15 @@ export default function ExperienceSection() {
                                         </h3>
                                         {/* Logo Université de Bordeaux */}
                                         <div className="flex items-center gap-2 mt-1">
-                                            <div className="rounded overflow-hidden bg-white/10 px-2 py-1">
-                                                <Image
-                                                    src="/logos/bordeaux.svg"
-                                                    alt="Université de Bordeaux"
-                                                    width={120}
-                                                    height={20}
-                                                    className="object-contain"
-                                                    style={{ height: 20, width: "auto" }}
-                                                    unoptimized
-                                                />
-                                            </div>
+                                            <Image
+                                                src="/logos/bordeaux.svg"
+                                                alt="Université de Bordeaux"
+                                                width={140}
+                                                height={28}
+                                                className="object-contain"
+                                                style={{ height: 28, width: "auto", maxWidth: 150 }}
+                                                unoptimized
+                                            />
                                         </div>
                                     </div>
                                     <span className={`text-xs font-mono whitespace-nowrap ${edu.color === "violet" ? "text-violet-400" : "text-blue-400"}`}>
