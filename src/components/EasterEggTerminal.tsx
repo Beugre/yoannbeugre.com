@@ -51,7 +51,7 @@ const RESPONSES: Record<string, string[]> = {
   contact: [
     "GitHub   : github.com/Beugre",
     "LinkedIn : linkedin.com/in/yoann-beugré-236b20153",
-    "Email    : contact@yoannbeugre.dev",
+    "Email    : yoann.beugre1@gmail.com",
   ],
   education: [
     "2016 — 2018 | Master 1 & 2 MIAGE — Université de Bordeaux",
@@ -66,7 +66,7 @@ const RESPONSES: Record<string, string[]> = {
     "",
     "🚀 Initiating hire sequence...",
     "",
-    "→ Send your best offer to: contact@yoannbeugre.dev",
+    "→ Send your best offer to: yoann.beugre1@gmail.com",
     "→ LinkedIn: linkedin.com/in/yoann-beugré-236b20153",
     "",
     "💡 Tip: Mention 'terminal' in your message for extra points.",

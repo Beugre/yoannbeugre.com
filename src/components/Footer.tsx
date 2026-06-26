@@ -40,7 +40,7 @@ export default function Footer() {
                             <ExternalLink size={16} />
                         </a>
                         <a
-                            href="mailto:contact@yoannbeugre.dev"
+                            href="mailto:yoann.beugre1@gmail.com"
                             className="w-9 h-9 rounded-lg glass border border-white/10 flex items-center justify-center text-white/40 hover:text-cyan-400 hover:border-cyan-400/30 transition-all duration-200"
                             aria-label="Email"
                         >

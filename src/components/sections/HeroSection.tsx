@@ -52,7 +52,7 @@ function NeuralSphere() {
 // ─── 3D: Particle field ───────────────────────────────────────────────────────
 function ParticleField() {
     const points = useRef<THREE.Points>(null);
-    const COUNT = 2800;
+    const COUNT = 600;
 
     const positions = new Float32Array(COUNT * 3);
     for (let i = 0; i < COUNT; i++) {

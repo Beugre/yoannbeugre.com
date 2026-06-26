@@ -29,11 +29,11 @@ export default function StarBackground() {
         window.addEventListener("resize", resize);
 
         const COLORS = ["255,255,255", "0,212,255", "139,92,246", "255,255,255", "255,255,255"];
-        const stars: Star[] = Array.from({ length: 450 }, () => ({
+        const stars: Star[] = Array.from({ length: 600 }, () => ({
             x: Math.random() * window.innerWidth,
             y: Math.random() * window.innerHeight,
-            r: Math.random() * 1.3 + 0.15,
-            alpha: Math.random() * 0.5 + 0.05,
+            r: Math.random() * 1.4 + 0.15,
+            alpha: Math.random() * 0.55 + 0.08,
             phase: Math.random() * Math.PI * 2,
             speed: Math.random() * 0.005 + 0.001,
             color: COLORS[Math.floor(Math.random() * COLORS.length)],
@@ -41,8 +41,14 @@ export default function StarBackground() {
 
         let t = 0;
         let raf: number;
+        let lastTime = 0;
+        const FPS = 30;
+        const INTERVAL = 1000 / FPS;
 
-        const draw = () => {
+        const draw = (now: number) => {
+            raf = requestAnimationFrame(draw);
+            if (now - lastTime < INTERVAL) return;
+            lastTime = now;
             t += 1;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (const s of stars) {
@@ -52,10 +58,9 @@ export default function StarBackground() {
                 ctx.fillStyle = `rgba(${s.color},${a.toFixed(3)})`;
                 ctx.fill();
             }
-            raf = requestAnimationFrame(draw);
         };
 
-        draw();
+        draw(0);
 
         return () => {
             cancelAnimationFrame(raf);
