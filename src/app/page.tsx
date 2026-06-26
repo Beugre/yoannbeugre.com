@@ -14,6 +14,7 @@ import ExperienceSection from "@/components/sections/ExperienceSection";
 import ArchitectureSection from "@/components/sections/ArchitectureSection";
 import TechStackSection from "@/components/sections/TechStackSection";
 import GitHubSection from "@/components/sections/GitHubSection";
+import WorldTravelsSection from "@/components/sections/WorldTravelsSection";
 import ContactSection from "@/components/sections/ContactSection";
 import BossSection from "@/components/sections/BossSection";
 import Footer from "@/components/Footer";
@@ -68,6 +69,7 @@ export default function Home() {
           <ArchitectureSection />
           <TechStackSection />
           <GitHubSection />
+          <WorldTravelsSection />
           <ContactSection />
           <BossSection />
           <Footer />

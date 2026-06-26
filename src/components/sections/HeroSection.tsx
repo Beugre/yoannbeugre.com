@@ -128,8 +128,11 @@ function TypedRole() {
     return <><span className="text-cyan-400">{displayed}</span><span className="text-cyan-400 animate-pulse">|</span></>;
 }
 
+import { useLang } from "@/context/LanguageContext";
+
 export default function HeroSection() {
     const [loaded, setLoaded] = useState(false);
+    const { t } = useLang();
 
     useEffect(() => { const t = setTimeout(() => setLoaded(true), 200); return () => clearTimeout(t); }, []);
 
@@ -237,19 +240,18 @@ export default function HeroSection() {
                 {/* Tagline */}
                 <p className={`max-w-xl mx-auto text-white/40 leading-relaxed mb-10 transition-all duration-700 delay-300 ${loaded ? "opacity-100" : "opacity-0"}`}
                     style={{ fontSize: "clamp(13px, 2vw, 16px)" }}>
-                    Je conçois des <span className="text-cyan-400 font-medium">systèmes intelligents</span> à l&apos;intersection du code, des mathématiques, de l&apos;IA et de la{" "}
-                    <span className="text-violet-400 font-medium">finance quantitative</span>.
+                    {t.hero.description.split(t.hero.descIntelligent)[0]}<span className="text-cyan-400 font-medium">{t.hero.descIntelligent}</span>{t.hero.description.split(t.hero.descIntelligent)[1]?.split(t.hero.descQuant)[0]}<span className="text-violet-400 font-medium">{t.hero.descQuant}</span>{t.hero.description.split(t.hero.descQuant)[1]}
                 </p>
 
                 {/* CTAs */}
                 <div className={`flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 transition-all duration-700 delay-400 ${loaded ? "opacity-100" : "opacity-0 translate-y-4"}`}>
                     <button type="button" onClick={() => document.querySelector("#trade")?.scrollIntoView({ behavior: "smooth" })}
                         style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 28px", borderRadius: 14, fontWeight: 900, fontSize: 15, color: "#000", background: "linear-gradient(135deg,#00d4ff,#8b5cf6)", border: "none", boxShadow: "0 0 32px rgba(0,212,255,0.25), 0 0 64px rgba(139,92,246,0.15)" }}>
-                        🚀 Start the mission
+                        🚀 {t.hero.cta1}
                     </button>
                     <button type="button" onClick={() => document.querySelector("#projects")?.scrollIntoView({ behavior: "smooth" })}
                         style={{ cursor: "pointer", padding: "13px 28px", borderRadius: 14, fontWeight: 700, fontSize: 15, color: "rgba(255,255,255,0.7)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(10px)" }}>
-                        Research Lab →
+                        {t.hero.cta2}
                     </button>
                 </div>
 
