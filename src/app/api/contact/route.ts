@@ -30,18 +30,23 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Ici, intégrer un service d'envoi d'email (Resend, SendGrid, etc.)
-        // Exemple avec Resend :
-        // const resend = new Resend(process.env.RESEND_API_KEY);
-        // await resend.emails.send({
-        //   from: "portfolio@yoannbeugre.dev",
-        //   to: "contact@yoannbeugre.dev",
-        //   subject: `[Portfolio] ${subject}`,
-        //   text: `De: ${name} (${email})\n\n${message}`,
-        // });
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+            console.error("RESEND_API_KEY manquant dans .env.local");
+            return NextResponse.json({ error: "Service d'envoi non configuré" }, { status: 503 });
+        }
 
-        // Pour l'instant, log côté serveur uniquement
-        console.log("Contact form submission:", { name, email, subject, messageLength: message.length });
+        const { Resend } = await import("resend");
+        const resend = new Resend(apiKey);
+
+        await resend.emails.send({
+            from: "Portfolio <onboarding@resend.dev>",
+            to: ["yoann.beugre1@gmail.com"],
+            replyTo: email,
+            subject: `[Portfolio] ${subject}`,
+            text: `Nouveau message depuis le portfolio\n\nDe : ${name}\nEmail : ${email}\nSujet : ${subject}\n\n${message}`,
+            html: `<h2>Nouveau message depuis le portfolio</h2><p><strong>De :</strong> ${name} (${email})</p><p><strong>Sujet :</strong> ${subject}</p><hr/><p>${message.replace(/\n/g, "<br/>")}</p>`,
+        });
 
         return NextResponse.json({ success: true });
     } catch {

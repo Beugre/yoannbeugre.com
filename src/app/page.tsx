@@ -28,12 +28,15 @@ import MatrixRain from "@/components/MatrixRain";
 import EasterEggs from "@/components/EasterEggs";
 import ProgressTracker from "@/components/ProgressTracker";
 import GSAPReveal from "@/components/GSAPReveal";
-import { BloombergTicker, AmbientSoundToggle } from "@/components/AmbientAndTicker";
+import { BloombergTicker } from "@/components/AmbientAndTicker";
+
+import StarBackground from "@/components/StarBackground";
 
 export default function Home() {
   return (
     <main className="relative min-h-screen bg-[#030712] overflow-x-hidden">
       <BootScreen />
+      <StarBackground />
       <CustomCursor />
       <SmoothScroll />
       <MatrixRain />
@@ -43,7 +46,6 @@ export default function Home() {
       <EasterEggTerminal />
       <AIAssistant />
       <GSAPReveal />
-      <AmbientSoundToggle />
       <BloombergTicker />
 
       {/* Content — pt-10 for ticker bar */}

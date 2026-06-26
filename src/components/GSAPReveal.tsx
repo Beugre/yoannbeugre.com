@@ -49,24 +49,7 @@ export default function GSAPReveal() {
                 }
             });
 
-            // Glass cards stagger on scroll (skip fixed elements — buttons, overlays)
-            const cards = document.querySelectorAll(".glass");
-            cards.forEach((card, i) => {
-                if (window.getComputedStyle(card).position === "fixed") return;
-                gsap.fromTo(card,
-                    { opacity: 0, y: 30, scale: 0.97 },
-                    {
-                        opacity: 1, y: 0, scale: 1,
-                        duration: 0.6, ease: "power3.out",
-                        delay: (i % 4) * 0.06,
-                        scrollTrigger: {
-                            trigger: card,
-                            start: "top 90%",
-                            once: true,
-                        }
-                    }
-                );
-            });
+            // Note: .glass card animations handled by Framer Motion in each section
 
             // Progress bar at top
             gsap.to(".gsap-progress", {
