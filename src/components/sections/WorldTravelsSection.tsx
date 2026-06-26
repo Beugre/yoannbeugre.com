@@ -65,14 +65,18 @@ export default function WorldTravelsSection() {
     const [globeReady, setGlobeReady] = useState(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [GlobeComponent, setGlobeComponent] = useState<any>(null);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
+        setIsClient(true);
         // Dynamic import for SSR compatibility
         import("react-globe.gl").then((mod) => {
             setGlobeComponent(() => mod.default);
             setGlobeReady(true);
         });
     }, []);
+
+    if (!isClient) return null;
 
     const cityLookup = Object.fromEntries(CITIES.map(c => [c.name, c]));
     const arcsData = ARCS.map(a => ({

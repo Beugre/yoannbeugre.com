@@ -18,7 +18,6 @@ import ContactSection from "@/components/sections/ContactSection";
 import BossSection from "@/components/sections/BossSection";
 import Footer from "@/components/Footer";
 import { LanguageProvider } from "@/context/LanguageContext";
-import dynamic from "next/dynamic";
 import CustomCursor from "@/components/CustomCursor";
 import SmoothScroll from "@/components/SmoothScroll";
 import EasterEggTerminal from "@/components/EasterEggTerminal";
@@ -31,8 +30,7 @@ import ProgressTracker from "@/components/ProgressTracker";
 import GSAPReveal from "@/components/GSAPReveal";
 import { BloombergTicker } from "@/components/AmbientAndTicker";
 import StarBackground from "@/components/StarBackground";
-
-const WorldTravelsSection = dynamic(() => import("@/components/sections/WorldTravelsSection"), { ssr: false });
+import WorldTravelsSection from "@/components/sections/WorldTravelsSection";
 
 export default function Home() {
   return (
