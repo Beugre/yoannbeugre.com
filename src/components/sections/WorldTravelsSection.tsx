@@ -249,8 +249,15 @@ export default function WorldTravelsSection() {
             </motion.div>
           )}
 
-          <div style={{ position: "absolute", inset: 0 }}>
-            <Canvas camera={{ position: [0, 0, 2.5], fov: 45 }} style={{ width: "100%", height: "100%" }}>
+          <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+            <style>{`#travels-globe canvas { width: 100% !important; height: 100% !important; display: block !important; }`}</style>
+            <div id="travels-globe" style={{ width: "100%", height: "100%" }}>
+            <Canvas
+              camera={{ position: [0, 0, 2.5], fov: 45 }}
+              gl={{ antialias: true, alpha: true }}
+              dpr={[1, 2]}
+              style={{ width: "100%", height: "100%", display: "block" }}
+            >
               <ambientLight intensity={0.08} />
               <directionalLight position={[5, 3, 5]} intensity={0.9} />
               <pointLight position={[-5, -3, -3]} intensity={0.2} color="#0033aa" />
@@ -259,6 +266,7 @@ export default function WorldTravelsSection() {
                 <GlobeScene geoData={geoData} onHover={handleHover} />
               </Suspense>
             </Canvas>
+            </div>
           </div>
 
           <div className="absolute bottom-4 left-4 flex items-center gap-4 text-[10px] font-mono">
