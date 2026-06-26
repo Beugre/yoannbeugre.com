@@ -187,7 +187,7 @@ export default function WorldTravelsSection() {
   const [hoverInfo, setHoverInfo] = useState<HoverPayload>(null);
 
   useEffect(() => {
-    fetch("https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson")
+    fetch("/countries.geojson")
       .then(r => r.json()).then(setGeoData).catch(() => {});
   }, []);
 
