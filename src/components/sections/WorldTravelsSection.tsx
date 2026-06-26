@@ -63,7 +63,8 @@ export default function WorldTravelsSection() {
     const globeRef = useRef<HTMLDivElement>(null);
     const [hovered, setHovered] = useState<string | null>(null);
     const [globeReady, setGlobeReady] = useState(false);
-    const [GlobeComponent, setGlobeComponent] = useState<React.ComponentType<unknown> | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [GlobeComponent, setGlobeComponent] = useState<any>(null);
 
     useEffect(() => {
         // Dynamic import for SSR compatibility
