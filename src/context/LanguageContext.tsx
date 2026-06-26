@@ -3,15 +3,18 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { translations, Lang } from "@/lib/translations";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type T = any;
+
 interface LangCtx {
     lang: Lang;
     setLang: (l: Lang) => void;
-    t: typeof translations.fr;
+    t: T;
 }
 
 const LanguageContext = createContext<LangCtx>({
     lang: "fr",
-    setLang: () => { },
+    setLang: () => {},
     t: translations.fr,
 });
 
