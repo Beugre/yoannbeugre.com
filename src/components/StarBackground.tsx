@@ -20,30 +20,39 @@ export default function StarBackground() {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
+        const getPageHeight = () => Math.max(
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight,
+            window.innerHeight
+        );
+
         const resize = () => {
             canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.height = getPageHeight();
         };
         resize();
         window.addEventListener("resize", resize);
+        // Rebuild on scroll to catch late-rendered sections
+        const resizeObserver = new ResizeObserver(resize);
+        resizeObserver.observe(document.body);
 
-        // Generate stars spread over 3x the viewport height for depth
-        const COUNT = 280;
+        // Dense starfield — matches hero particle density across the whole page
+        const COUNT = 700;
         const stars: Star[] = Array.from({ length: COUNT }, () => ({
             x: Math.random(),
             y: Math.random(),
-            r: Math.random() * 1.2 + 0.2,
-            baseAlpha: Math.random() * 0.45 + 0.05,
+            r: Math.random() * 1.3 + 0.15,
+            baseAlpha: Math.random() * 0.5 + 0.08,
             phase: Math.random() * Math.PI * 2,
             speed: Math.random() * 0.004 + 0.001,
         }));
 
-        // A few brighter accent stars (cyan/violet tint)
-        const accentStars: Star[] = Array.from({ length: 18 }, () => ({
+        // Accent stars (cyan/violet tint) — spread across full page
+        const accentStars: Star[] = Array.from({ length: 55 }, () => ({
             x: Math.random(),
             y: Math.random(),
             r: Math.random() * 1.8 + 0.8,
-            baseAlpha: Math.random() * 0.3 + 0.1,
+            baseAlpha: Math.random() * 0.35 + 0.1,
             phase: Math.random() * Math.PI * 2,
             speed: Math.random() * 0.002 + 0.0005,
         }));
@@ -86,14 +95,15 @@ export default function StarBackground() {
         return () => {
             cancelAnimationFrame(raf);
             window.removeEventListener("resize", resize);
+            resizeObserver.disconnect();
         };
     }, []);
 
     return (
         <canvas
             ref={canvasRef}
-            className="fixed inset-0 z-0 pointer-events-none"
-            style={{ opacity: 0.55 }}
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{ opacity: 0.6, width: "100%", height: "100%" }}
         />
     );
 }
