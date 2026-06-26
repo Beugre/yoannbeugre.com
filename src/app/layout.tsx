@@ -117,6 +117,11 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <script
+          defer
+          src="https://analytics.yoannbeugre.fr/script.js"
+          data-website-id="7dcee9ea-c45e-4956-a059-f0c5a5b278e7"
+        />
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-[#030712] text-slate-100`}
