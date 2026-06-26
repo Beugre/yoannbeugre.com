@@ -60,7 +60,7 @@ export default function ContactSection() {
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="text-emerald-400 text-sm font-semibold">Disponible</span>
               </div>
-              <p className="text-white/50 text-sm">Ouvert aux opportunités — remote ou hybride Paris/IDF. Domaines cibles : SWE + AI + Data + Quant.</p>
+              <p className="text-white/50 text-sm">Ouvert aux opportunités — remote ou hybride Bordeaux / France. Domaines cibles : SWE + AI + Data + Quant.</p>
             </div>
 
             {/* Links */}
@@ -68,7 +68,7 @@ export default function ContactSection() {
               {[
                 { Icon: GitBranch, label: "GitHub", value: "github.com/Beugre", href: "https://github.com/Beugre", color: "text-white/70" },
                 { Icon: ExternalLink, label: "LinkedIn", value: "Yoann Beugré", href: "https://www.linkedin.com/in/yoann-beugré-236b20153/", color: "text-blue-400" },
-                { Icon: Mail, label: "Email", value: "contact@yoannbeugre.dev", href: "mailto:contact@yoannbeugre.dev", color: "text-cyan-400" },
+                { Icon: Mail, label: "Email", value: "yoann.beugre1@gmail.com", href: "mailto:yoann.beugre1@gmail.com", color: "text-cyan-400" },
               ].map(({ Icon, label, value, href, color }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-4 glass rounded-xl p-4 border border-white/5 hover:border-white/15 transition-all group">
@@ -82,7 +82,7 @@ export default function ContactSection() {
             </div>
 
             {/* CV */}
-            <motion.a href="/cv-yoann-beugre.pdf" download
+            <motion.a href="/CV_Yoann_Beugre.pdf" download
               className="flex items-center justify-center gap-3 w-full py-4 rounded-xl border border-violet-400/30 text-violet-300 hover:bg-violet-400/10 transition-all font-medium text-sm group"
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <FileText size={18} />
