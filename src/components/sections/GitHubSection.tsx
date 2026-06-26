@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { ExternalLink, Star, GitFork, Code2 } from "lucide-react";
 
 interface GitHubStats {
@@ -25,6 +25,14 @@ interface Repo {
     topics: string[];
 }
 
+// Fallback repos — always visible even if API rate-limited
+const FALLBACK_REPOS: Repo[] = [
+    { name: "yoannbeugre.com", description: "Portfolio — systèmes intelligents, IA, quant trading. Next.js, Three.js, Framer Motion.", stargazers_count: 0, forks_count: 0, language: "TypeScript", html_url: "https://github.com/Beugre/yoannbeugre.com", topics: [] },
+    { name: "investX", description: "Bot de trading algorithmique — RSI, momentum, backtesting automatisé.", stargazers_count: 0, forks_count: 0, language: "Python", html_url: "https://github.com/Beugre/investX", topics: [] },
+    { name: "betX", description: "Système de paris quantitatif avec edge calculator et Kelly criterion.", stargazers_count: 0, forks_count: 0, language: "Python", html_url: "https://github.com/Beugre/betX", topics: [] },
+    { name: "Ivoire-Agents-AI", description: "Agents IA multi-modaux pour l'Afrique de l'Ouest — LangChain, GPT-4.", stargazers_count: 0, forks_count: 0, language: "Python", html_url: "https://github.com/Beugre/Ivoire-Agents-AI", topics: [] },
+];
+
 const LANG_COLORS: Record<string, string> = {
     Python: "#3572A5",
     TypeScript: "#3178c6",
@@ -39,40 +47,25 @@ const LANG_COLORS: Record<string, string> = {
 
 export default function GitHubSection() {
     const ref = useRef<HTMLDivElement>(null);
-    const isInView = useInView(ref, { once: true, amount: 0.1 });
     const [stats, setStats] = useState<GitHubStats | null>(null);
-    const [repos, setRepos] = useState<Repo[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [repos, setRepos] = useState<Repo[]>(FALLBACK_REPOS);
 
     useEffect(() => {
-        if (!isInView) return;
-        setLoading(true);
-
         const fetchData = async () => {
             try {
                 const [userRes, reposRes] = await Promise.all([
                     fetch("https://api.github.com/users/Beugre"),
-                    fetch("https://api.github.com/users/Beugre/repos?sort=updated&per_page=6"),
+                    fetch("https://api.github.com/users/Beugre/repos?sort=updated&per_page=4"),
                 ]);
-
-                if (userRes.ok) {
-                    const userData = await userRes.json();
-                    setStats(userData);
-                }
-
+                if (userRes.ok) setStats(await userRes.json());
                 if (reposRes.ok) {
-                    const reposData = await reposRes.json();
-                    setRepos(Array.isArray(reposData) ? reposData : []);
+                    const data = await reposRes.json();
+                    if (Array.isArray(data) && data.length > 0) setRepos(data);
                 }
-            } catch {
-                // Graceful degradation — GitHub API peut être rate-limited
-            } finally {
-                setLoading(false);
-            }
+            } catch { /* fallback déjà affiché */ }
         };
-
         fetchData();
-    }, [isInView]);
+    }, []);
 
     return (
         <section id="github" className="relative py-32 px-6 overflow-hidden">
@@ -83,7 +76,8 @@ export default function GitHubSection() {
                 <motion.div
                     className="mb-16"
                     initial={{ opacity: 0, y: 40 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
                     transition={{ duration: 0.7 }}
                 >
                     <div className="flex items-center gap-4 mb-4">
@@ -102,7 +96,8 @@ export default function GitHubSection() {
                 <motion.div
                     className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
                     initial={{ opacity: 0, y: 30 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                 >
                     {[
@@ -110,15 +105,9 @@ export default function GitHubSection() {
                         { label: "Followers", value: stats?.followers ?? "—", icon: Star },
                         { label: "Contributions", value: "500+", icon: GitFork },
                         { label: "Languages", value: "7+", icon: Code2 },
-                    ].map((stat, i) => (
+                    ].map((stat) => (
                         <div key={stat.label} className="glass rounded-xl p-5 border border-white/5 text-center">
-                            <div className="text-3xl font-black text-gradient-static mb-1">
-                                {loading ? (
-                                    <div className="h-8 w-12 bg-white/10 rounded animate-pulse mx-auto" />
-                                ) : (
-                                    stat.value
-                                )}
-                            </div>
+                            <div className="text-3xl font-black text-gradient-static mb-1">{stat.value}</div>
                             <div className="text-xs font-mono text-white/40">{stat.label}</div>
                         </div>
                     ))}
@@ -130,7 +119,8 @@ export default function GitHubSection() {
                     <motion.div
                         className="glass rounded-2xl p-6 border border-white/8 flex flex-col items-center text-center"
                         initial={{ opacity: 0, x: -30 }}
-                        animate={isInView ? { opacity: 1, x: 0 } : {}}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.2 }}
                         transition={{ duration: 0.6, delay: 0.3 }}
                     >
                         {stats?.avatar_url ? (
@@ -149,7 +139,7 @@ export default function GitHubSection() {
                             {stats?.name || "Yoann Beugré"}
                         </div>
                         <div className="text-cyan-400 text-sm font-mono mt-0.5">
-                            @{stats?.login || "yoannbeugre"}
+                            @{stats?.login || "Beugre"}
                         </div>
                         {stats?.bio && (
                             <p className="text-white/40 text-sm mt-3 leading-relaxed">{stats.bio}</p>
@@ -167,58 +157,45 @@ export default function GitHubSection() {
 
                     {/* Repos */}
                     <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
-                        {loading
-                            ? Array.from({ length: 4 }).map((_, i) => (
-                                <div key={i} className="glass rounded-xl p-5 border border-white/5 animate-pulse">
-                                    <div className="h-4 bg-white/10 rounded w-3/4 mb-3" />
-                                    <div className="h-3 bg-white/5 rounded w-full mb-2" />
-                                    <div className="h-3 bg-white/5 rounded w-2/3" />
+                        {repos.slice(0, 4).map((repo, i) => (
+                            <motion.a
+                                key={repo.name}
+                                href={repo.html_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="glass rounded-xl p-5 border border-white/5 hover:border-cyan-400/30 transition-all duration-300 group block"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, amount: 0.1 }}
+                                transition={{ duration: 0.4, delay: i * 0.08 }}
+                                whileHover={{ y: -3 }}
+                            >
+                                <div className="flex items-start justify-between mb-2">
+                                    <h3 className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">
+                                        {repo.name}
+                                    </h3>
+                                    <ExternalLink size={12} className="text-white/20 group-hover:text-cyan-400 flex-shrink-0 mt-0.5 transition-colors" />
                                 </div>
-                            ))
-                            : repos.slice(0, 4).map((repo, i) => (
-                                <motion.a
-                                    key={repo.name}
-                                    href={repo.html_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="glass rounded-xl p-5 border border-white/5 hover:border-white/15 transition-all duration-300 group block"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                                    transition={{ duration: 0.4, delay: 0.4 + i * 0.08 }}
-                                    whileHover={{ y: -3 }}
-                                >
-                                    <div className="flex items-start justify-between mb-2">
-                                        <h3 className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">
-                                            {repo.name}
-                                        </h3>
-                                        <ExternalLink size={12} className="text-white/20 group-hover:text-white/60 flex-shrink-0 mt-0.5" />
-                                    </div>
-                                    <p className="text-xs text-white/40 leading-relaxed line-clamp-2 mb-3">
-                                        {repo.description || "No description"}
-                                    </p>
-                                    <div className="flex items-center gap-4">
-                                        {repo.language && (
-                                            <div className="flex items-center gap-1.5">
-                                                <div
-                                                    className="w-2 h-2 rounded-full"
-                                                    style={{ backgroundColor: LANG_COLORS[repo.language] || "#64748b" }}
-                                                />
-                                                <span className="text-xs text-white/30 font-mono">{repo.language}</span>
-                                            </div>
-                                        )}
-                                        <div className="flex items-center gap-1 text-white/30">
-                                            <Star size={11} />
-                                            <span className="text-xs font-mono">{repo.stargazers_count}</span>
+                                <p className="text-xs text-white/40 leading-relaxed line-clamp-2 mb-3">
+                                    {repo.description || "Repository GitHub"}
+                                </p>
+                                <div className="flex items-center gap-4">
+                                    {repo.language && (
+                                        <div className="flex items-center gap-1.5">
+                                            <div
+                                                className="w-2 h-2 rounded-full"
+                                                style={{ backgroundColor: LANG_COLORS[repo.language] || "#64748b" }}
+                                            />
+                                            <span className="text-xs text-white/30 font-mono">{repo.language}</span>
                                         </div>
+                                    )}
+                                    <div className="flex items-center gap-1 text-white/30">
+                                        <Star size={11} />
+                                        <span className="text-xs font-mono">{repo.stargazers_count}</span>
                                     </div>
-                                </motion.a>
-                            ))}
-
-                        {repos.length === 0 && !loading && (
-                            <div className="sm:col-span-2 text-center py-8 text-white/30 text-sm font-mono">
-                                Repositories chargés dynamiquement depuis l&apos;API GitHub
-                            </div>
-                        )}
+                                </div>
+                            </motion.a>
+                        ))}
                     </div>
                 </div>
             </div>
