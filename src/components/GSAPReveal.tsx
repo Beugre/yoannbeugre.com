@@ -49,9 +49,10 @@ export default function GSAPReveal() {
                 }
             });
 
-            // Glass cards stagger on scroll
+            // Glass cards stagger on scroll (skip fixed elements — buttons, overlays)
             const cards = document.querySelectorAll(".glass");
             cards.forEach((card, i) => {
+                if (window.getComputedStyle(card).position === "fixed") return;
                 gsap.fromTo(card,
                     { opacity: 0, y: 30, scale: 0.97 },
                     {
