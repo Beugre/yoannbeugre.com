@@ -100,7 +100,7 @@ export function AmbientSoundToggle() {
             type="button"
             onClick={toggle}
             title={on ? "Couper la musique (Gymnopedie — Satie)" : "Activer la musique (Gymnopedie — Satie)"}
-            className="fixed bottom-[52px] right-4 z-[120] w-9 h-9 glass border border-white/10 rounded-xl flex items-center justify-center transition-all hover:border-white/25"
+            className="fixed top-[88px] right-4 z-[120] w-9 h-9 glass border border-white/10 rounded-xl flex items-center justify-center transition-all hover:border-white/25"
             style={{ cursor: "pointer", color: on ? "#00d4ff" : "rgba(255,255,255,0.3)" }}
         >
             {on ? "🔊" : "🔇"}
