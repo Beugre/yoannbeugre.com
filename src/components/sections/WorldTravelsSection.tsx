@@ -249,15 +249,17 @@ export default function WorldTravelsSection() {
             </motion.div>
           )}
 
-          <Canvas camera={{ position: [0, 0, 2.5], fov: 45 }}>
-            <ambientLight intensity={0.08} />
-            <directionalLight position={[5, 3, 5]} intensity={0.9} />
-            <pointLight position={[-5, -3, -3]} intensity={0.2} color="#0033aa" />
-            <Stars radius={100} depth={50} count={3500} factor={4} saturation={0} fade speed={0.2} />
-            <Suspense fallback={null}>
-              <GlobeScene geoData={geoData} onHover={handleHover} />
-            </Suspense>
-          </Canvas>
+          <div style={{ position: "absolute", inset: 0 }}>
+            <Canvas camera={{ position: [0, 0, 2.5], fov: 45 }} style={{ width: "100%", height: "100%" }}>
+              <ambientLight intensity={0.08} />
+              <directionalLight position={[5, 3, 5]} intensity={0.9} />
+              <pointLight position={[-5, -3, -3]} intensity={0.2} color="#0033aa" />
+              <Stars radius={100} depth={50} count={3500} factor={4} saturation={0} fade speed={0.2} />
+              <Suspense fallback={null}>
+                <GlobeScene geoData={geoData} onHover={handleHover} />
+              </Suspense>
+            </Canvas>
+          </div>
 
           <div className="absolute bottom-4 left-4 flex items-center gap-4 text-[10px] font-mono">
             <div className="flex items-center gap-1.5">
