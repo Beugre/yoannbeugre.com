@@ -2,54 +2,38 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import Image from "next/image";
 
-// ── Company logos as inline SVG ──────────────────────────────────────────────
-function LogoTouton() {
-  return (
-    <svg viewBox="0 0 120 32" height={22} fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Touton wordmark — clean serif-inspired lettering */}
-      <rect x="0" y="8" width="4" height="16" rx="2" fill="#d4a853"/>
-      <rect x="0" y="8" width="16" height="4" rx="2" fill="#d4a853"/>
-      <text x="22" y="24" fontFamily="Georgia, serif" fontSize="18" fontWeight="700" fill="#e8c47a" letterSpacing="2">
-        TOUTON
-      </text>
-    </svg>
-  );
-}
-
-function LogoCdiscount() {
-  return (
-    <svg viewBox="0 0 130 32" height={22} fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Cdiscount — orange/red brand */}
-      <rect x="0" y="4" width="26" height="24" rx="5" fill="#f04e23"/>
-      <text x="6" y="22" fontFamily="Arial Black, sans-serif" fontSize="16" fontWeight="900" fill="white">C</text>
-      <text x="32" y="24" fontFamily="Arial, sans-serif" fontSize="16" fontWeight="700" fill="#f04e23" letterSpacing="0.5">
-        discount
-      </text>
-    </svg>
-  );
-}
-
-function LogoCreditAgricole() {
-  return (
-    <svg viewBox="0 0 160 32" height={22} fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Crédit Agricole — iconic green squares logo */}
-      <rect x="0" y="2" width="13" height="13" rx="1.5" fill="#009A44"/>
-      <rect x="15" y="2" width="13" height="13" rx="1.5" fill="#009A44"/>
-      <rect x="0" y="17" width="13" height="13" rx="1.5" fill="#009A44"/>
-      <rect x="15" y="17" width="13" height="13" rx="1.5" fill="#009A44" opacity="0.4"/>
-      <text x="34" y="24" fontFamily="Arial, sans-serif" fontSize="13" fontWeight="700" fill="#009A44" letterSpacing="0.3">
-        Crédit Agricole
-      </text>
-    </svg>
-  );
-}
-
-const COMPANY_LOGOS: Record<string, () => React.ReactElement> = {
-  "Touton": LogoTouton,
-  "Cdiscount": LogoCdiscount,
-  "Crédit Agricole": LogoCreditAgricole,
+// Vrais logos depuis /public/logos/
+const COMPANY_LOGOS: Record<string, { src: string; height: number; darkBg?: boolean }> = {
+    "Touton":          { src: "/logos/touton.jpg",        height: 28, darkBg: true },
+    "Cdiscount":       { src: "/logos/cdiscount.svg",     height: 24 },
+    "Crédit Agricole": { src: "/logos/credit-agricole.svg", height: 30 },
 };
+
+function CompanyLogo({ company }: { company: string }) {
+    const logo = COMPANY_LOGOS[company];
+    if (!logo) return <span className="text-white/50 text-sm">{company}</span>;
+    return (
+        <div
+            className="inline-flex items-center rounded-lg overflow-hidden"
+            style={{
+                padding: logo.darkBg ? "3px 8px" : "2px 4px",
+                background: logo.darkBg ? "rgba(255,255,255,0.92)" : "transparent",
+            }}
+        >
+            <Image
+                src={logo.src}
+                alt={company}
+                height={logo.height}
+                width={logo.height * 4}
+                className="object-contain"
+                style={{ maxWidth: 140, height: logo.height }}
+                unoptimized
+            />
+        </div>
+    );
+}
 
 const experiences = [
     {
@@ -251,13 +235,7 @@ export default function ExperienceSection() {
                                                 <div>
                                                     <h3 className="text-lg font-bold text-white/90">{exp.role}</h3>
                                                     <div className="flex items-center gap-2 mt-1">
-                                                        {COMPANY_LOGOS[exp.company] ? (
-                                                            <div className="opacity-90 hover:opacity-100 transition-opacity">
-                                                                {COMPANY_LOGOS[exp.company]()}
-                                                            </div>
-                                                        ) : (
-                                                            <span className="text-white/50 text-sm">{exp.company}</span>
-                                                        )}
+                                                        <CompanyLogo company={exp.company} />
                                                         <span className={`text-xs px-2 py-0.5 rounded ${colors.bg} ${colors.text} font-mono`}>
                                                             {exp.type}
                                                         </span>
