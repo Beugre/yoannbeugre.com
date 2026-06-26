@@ -6,8 +6,8 @@ import Image from "next/image";
 
 // Vrais logos depuis /public/logos/
 const COMPANY_LOGOS: Record<string, { src: string; height: number; darkBg?: boolean }> = {
-    "Touton":          { src: "/logos/touton.jpg",        height: 28, darkBg: true },
-    "Cdiscount":       { src: "/logos/cdiscount.svg",     height: 24 },
+    "Touton": { src: "/logos/touton.jpg", height: 28, darkBg: true },
+    "Cdiscount": { src: "/logos/cdiscount.svg", height: 24 },
     "Crédit Agricole": { src: "/logos/credit-agricole.svg", height: 30 },
 };
 
@@ -307,7 +307,20 @@ export default function ExperienceSection() {
                                         <h3 className={`font-bold text-white/90 ${edu.color === "violet" ? "text-violet-300" : "text-blue-300"}`}>
                                             {edu.degree}
                                         </h3>
-                                        <p className="text-white/50 text-sm">{edu.school}</p>
+                                        {/* Logo Université de Bordeaux */}
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <div className="rounded overflow-hidden bg-white/10 px-2 py-1">
+                                                <Image
+                                                    src="/logos/bordeaux.svg"
+                                                    alt="Université de Bordeaux"
+                                                    width={120}
+                                                    height={20}
+                                                    className="object-contain"
+                                                    style={{ height: 20, width: "auto" }}
+                                                    unoptimized
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                     <span className={`text-xs font-mono whitespace-nowrap ${edu.color === "violet" ? "text-violet-400" : "text-blue-400"}`}>
                                         {edu.period}
