@@ -30,7 +30,7 @@ import ProgressTracker from "@/components/ProgressTracker";
 import GSAPReveal from "@/components/GSAPReveal";
 import { BloombergTicker } from "@/components/AmbientAndTicker";
 import StarBackground from "@/components/StarBackground";
-import WorldTravelsSection from "@/components/sections/WorldTravelsSection";
+import WorldTravelsSection from "@/components/sections/WorldTravelsWrapper";
 
 export default function Home() {
   return (
