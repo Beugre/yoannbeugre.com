@@ -9,6 +9,7 @@ const CAPSULES = [
   { id: "ai", year: "2023", icon: "🧠", label: "Intelligence Artificielle", color: "#10b981", detail: "LLM, LangChain, agents IA autonomes, Prompt Engineering. L'IA n'est pas magique : c'est de la mathématique appliquée à la statistique et à l'inférence." },
   { id: "quant", year: "2024", icon: "📈", label: "Trading Quantitatif", color: "#f97316", detail: "Bots Binance (RSI, Price Action, SL/TP adaptatif), algo paris sportifs (value bets, Kelly), Polymarket (marchés prédictifs DeFi). La finance est un problème d'optimisation." },
   { id: "sys", year: "Now", icon: "◈", label: "Architecte Systèmes", color: "#00d4ff", detail: "Aujourd'hui je conçois des systèmes qui pensent : qui analysent, décident et agissent en temps réel. L'objectif : automatiser l'intelligence." },
+  { id: "life", year: "⚽", icon: "⚽", label: "Football & Voyages", color: "#f97316", detail: "Fan inconditionnel des Éléphants de Côte d'Ivoire. Le football m'a appris la stratégie, la rigueur collective et le dépassement de soi. Les voyages entre Bordeaux et Abidjan alimentent ma vision globale des systèmes — humains comme techniques." },
 ];
 
 const STATS = [
@@ -107,6 +108,7 @@ export default function AboutSection() {
                 <div className="pl-8 text-white/40">self.teaching = <span className="text-emerald-400">&quot;Maths 3ème→L2 (2011-2025)&quot;</span></div>
                 <div className="pl-8 text-white/40">self.stack = [<span className="text-cyan-400">&quot;Python&quot;</span>, <span className="text-cyan-400">&quot;AI&quot;</span>, <span className="text-cyan-400">&quot;Quant&quot;</span>]</div>
                 <div className="pl-8 text-white/40">self.status = <span className="text-violet-400">&quot;building intelligent systems&quot;</span></div>
+                <div className="pl-8 text-white/40">self.football = <span className="text-orange-400">&quot;⚽Éléphants CI &amp; travels&quot;</span></div>
                 <div className="mt-2"><span className="text-violet-400">def </span><span className="text-yellow-400">think</span><span className="text-white/50">(self, problem):</span></div>
                 <div className="pl-4 text-white/40"><span className="text-green-400"># Math → Algo → Code → System</span></div>
                 <div className="pl-4 text-white/40"><span className="text-violet-400">return</span> self.solve(problem)</div>

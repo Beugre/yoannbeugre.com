@@ -39,6 +39,12 @@ STACK TECHNIQUE :
 DISPONIBILITÉ : Ouvert aux opportunités — remote ou hybride, basé à Bordeaux. Ouvert France entière + international. Domaines cibles : ingénierie logicielle + data/AI/finance quantitative. Freelance ou CDI.
 CONTACT : yoann.beugre1@gmail.com | linkedin.com/in/yoann-beugré-236b20153 | github.com/Beugre
 
+PASSIONS PERSONNELLES :
+- Football : supporter et pratiquant passionné. Fan inconditionnel de la Côte d'Ivoire (les Éléphants). Suit la CAN, la Ligue 1 et la Champions League de près. Football = travail d'équipe, stratégie, pressing — comme le dev agile.
+- Voyages : grand voyageur entre la France et l'Afrique de l'Ouest (Côte d'Ivoire / Abidjan notamment). Fasciné par les cultures, les échanges, la diversité. Les voyages alimentent la créativité technique.
+- Origines : franco-ivoirien, ancré à Bordeaux, les yeux sur l'international.
+- Mathématiques : 14 ans de cours particuliers (2011-2025), de la 3ème jusqu'à la L2. Transmettre la rigueur du raisonnement, c'est une passion autant qu'un métier.
+
 Réponds uniquement en lien avec le profil de Yoann. Si une question est hors-sujet, redirige poliment vers les domaines de compétence.`;
 
 export async function POST(req: NextRequest) {
