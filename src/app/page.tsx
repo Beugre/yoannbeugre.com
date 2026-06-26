@@ -14,12 +14,13 @@ import ExperienceSection from "@/components/sections/ExperienceSection";
 import ArchitectureSection from "@/components/sections/ArchitectureSection";
 import TechStackSection from "@/components/sections/TechStackSection";
 import GitHubSection from "@/components/sections/GitHubSection";
-import dynamic from "next/dynamic";
-const WorldTravelsSection = dynamic(() => import("@/components/sections/WorldTravelsSection"), { ssr: false });
 import ContactSection from "@/components/sections/ContactSection";
 import BossSection from "@/components/sections/BossSection";
 import Footer from "@/components/Footer";
 import { LanguageProvider } from "@/context/LanguageContext";
+import dynamic from "next/dynamic";
+
+const WorldTravelsSection = dynamic(() => import("@/components/sections/WorldTravelsSection"), { ssr: false });
 
 import CustomCursor from "@/components/CustomCursor";
 import SmoothScroll from "@/components/SmoothScroll";
