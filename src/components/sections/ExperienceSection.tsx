@@ -329,6 +329,65 @@ export default function ExperienceSection() {
                         ))}
                     </div>
                 </motion.div>
+
+                {/* Certifications */}
+                <motion.div
+                    className="mt-12"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.6, delay: 1.0 }}
+                >
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="glow-line w-12" />
+                        <span className="text-xs font-mono text-cyan-400 tracking-widest uppercase">
+                            Certifications
+                        </span>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {[
+                            {
+                                title: "Appian Certified Developer",
+                                issuer: "Appian Corporation",
+                                icon: "⚙️",
+                                color: "cyan",
+                                url: "https://sei.caveon.com/score/WyJmYjA2NmYzMC0wNGQ2LTRmMzctYTA4OS00MDY4OGUxYzRjY2UiLGZhbHNlXQ.UWrUOumxRwkLgnCnYilPJWL7Ndw",
+                                desc: "Certification officielle plateforme low-code BPM — directement appliqué sur l'ERP Appian développé from scratch chez Touton SA.",
+                            },
+                            {
+                                title: "Agile — Scrum Master",
+                                issuer: "Certification officielle",
+                                icon: "🏅",
+                                color: "emerald",
+                                url: "https://badges.parchment.eu/public/assertions/66sydDanSaGW2YvAjdI3gg",
+                                desc: "Certification méthodologie Agile / Scrum — appliquée sur 2 équipes dev (Cdiscount + Touton) en tant que Scrum Master.",
+                            },
+                        ].map((cert) => (
+                            <a
+                                key={cert.title}
+                                href={cert.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`glass rounded-2xl p-6 border ${cert.color === "cyan" ? "border-cyan-400/20 hover:border-cyan-400/40" : "border-emerald-400/20 hover:border-emerald-400/40"} transition-all group block`}
+                            >
+                                <div className="flex items-start justify-between gap-4 mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">{cert.icon}</span>
+                                        <div>
+                                            <h3 className={`font-bold ${cert.color === "cyan" ? "text-cyan-300" : "text-emerald-300"}`}>
+                                                {cert.title}
+                                            </h3>
+                                            <p className="text-xs font-mono text-white/40 mt-0.5">{cert.issuer}</p>
+                                        </div>
+                                    </div>
+                                    <span className={`text-xs font-mono px-2 py-1 rounded-lg ${cert.color === "cyan" ? "bg-cyan-400/10 text-cyan-400" : "bg-emerald-400/10 text-emerald-400"} whitespace-nowrap group-hover:opacity-80 transition-opacity`}>
+                                        Voir ↗
+                                    </span>
+                                </div>
+                                <p className="text-white/40 text-sm leading-relaxed">{cert.desc}</p>
+                            </a>
+                        ))}
+                    </div>
+                </motion.div>
             </div>
         </section>
     );
