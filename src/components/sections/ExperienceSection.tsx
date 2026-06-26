@@ -141,7 +141,7 @@ export default function ExperienceSection() {
 
     return (
         <section id="experience" className="relative py-32 px-6 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/5 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/5 to-transparent pointer-events-none" />
 
             <div ref={ref} className="max-w-7xl mx-auto">
                 {/* Header */}

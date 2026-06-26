@@ -69,7 +69,7 @@ export default function GitHubSection() {
 
     return (
         <section id="github" className="relative py-32 px-6 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/10 to-transparent pointer-events-none" />
 
             <div ref={ref} className="max-w-7xl mx-auto">
                 {/* Header */}

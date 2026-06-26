@@ -53,7 +53,7 @@ export default function StatsSection() {
     return (
         <section id="stats" className="relative py-24 px-6 overflow-hidden">
             {/* Background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-950/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-950/10 to-transparent pointer-events-none" />
 
             {/* Horizontal glow line top */}
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent" />

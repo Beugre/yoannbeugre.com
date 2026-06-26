@@ -56,7 +56,7 @@ export default function BossSection() {
     return (
         <section id="boss" className="relative py-32 px-6 overflow-hidden">
             {/* Deep background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0015] to-[#030712]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0015] to-[#030712] pointer-events-none" />
 
             {/* Radiating glow */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
