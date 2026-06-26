@@ -227,16 +227,13 @@ export default function WorldTravelsSection() {
           ))}
         </motion.div>
 
-        <motion.div className="relative rounded-2xl overflow-hidden"
-          style={{ height: 540, background: "radial-gradient(ellipse at 50% 50%, #00050f 0%, #000208 100%)" }}
-          initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }}>
+        <div className="relative rounded-2xl overflow-hidden" style={{ height: 540, background: "radial-gradient(ellipse at 50% 50%, #00050f 0%, #000208 100%)" }}>
 
           {hoverInfo && (
             <motion.div
               className="absolute z-20 pointer-events-none glass border border-yellow-400/40 rounded-xl px-4 py-3 shadow-2xl"
               style={{ left: Math.max(10, Math.min(hoverInfo.x + 12, 540)), top: Math.max(10, hoverInfo.y - 60), minWidth: 180 }}
-              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.15 }}
             >
               <div className="text-sm font-bold text-white/90 mb-2 flex items-center gap-2">
@@ -249,15 +246,8 @@ export default function WorldTravelsSection() {
             </motion.div>
           )}
 
-          <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
-            <style>{`#travels-globe canvas { width: 100% !important; height: 100% !important; display: block !important; }`}</style>
-            <div id="travels-globe" style={{ width: "100%", height: "100%" }}>
-            <Canvas
-              camera={{ position: [0, 0, 2.5], fov: 45 }}
-              gl={{ antialias: true, alpha: true }}
-              dpr={[1, 2]}
-              style={{ width: "100%", height: "100%", display: "block" }}
-            >
+          <div className="absolute inset-0 z-0">
+            <Canvas camera={{ position: [0, 0, 2.5], fov: 45 }} gl={{ antialias: true, alpha: true }}>
               <ambientLight intensity={0.08} />
               <directionalLight position={[5, 3, 5]} intensity={0.9} />
               <pointLight position={[-5, -3, -3]} intensity={0.2} color="#0033aa" />
@@ -269,18 +259,18 @@ export default function WorldTravelsSection() {
             </div>
           </div>
 
-          <div className="absolute bottom-4 left-4 flex items-center gap-4 text-[10px] font-mono">
+          <div className="absolute bottom-4 left-4 flex items-center gap-4 text-[10px] font-mono z-10">
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-2 rounded" style={{ background: "rgba(240,185,11,0.4)", border: "1px solid rgba(240,185,11,0.8)" }} />
               <span className="text-white/35">Pays visité — hover pour détail</span>
             </div>
           </div>
           {!geoData && (
-            <div className="absolute inset-0 flex items-end justify-center pb-8 pointer-events-none">
+            <div className="absolute inset-0 flex items-end justify-center pb-8 pointer-events-none z-10">
               <span className="text-white/20 text-xs font-mono animate-pulse">Chargement des frontières...</span>
             </div>
           )}
-        </motion.div>
+        </div>
 
         <motion.div className="mt-8 glass rounded-2xl border border-white/5 p-6"
           initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
